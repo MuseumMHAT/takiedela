@@ -53,4 +53,532 @@
   
   .timeline-container { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 24px; border: 1px solid #e8e8e8; overflow-x: auto; }
   .timeline-container h3 { margin-bottom: 16px; font-size: 16px; }
-  .timeline { display: flex; align-items: center; min-width: 800px; position
+  .timeline { display: flex; align-items: center; min-width: 800px; position: relative; padding: 20px 0; }
+  .timeline-line { position: absolute; top: 50%; left: 0; right: 0; height: 3px; background: #e0e0e0; transform: translateY(-50%); }
+  .timeline-point { position: relative; z-index: 1; text-align: center; flex: 1; }
+  .timeline-dot { width: 14px; height: 14px; border-radius: 50%; background: #6c5ce7; margin: 0 auto 8px; border: 3px solid #fff; box-shadow: 0 0 0 2px #6c5ce7; }
+  .timeline-dot.past { background: #00b894; box-shadow: 0 0 0 2px #00b894; }
+  .timeline-dot.future { background: #ddd; box-shadow: 0 0 0 2px #ddd; }
+  .timeline-label { font-size: 11px; color: #666; max-width: 100px; margin: 0 auto; }
+  .timeline-date { font-size: 10px; color: #999; margin-top: 2px; }
+  
+  .stage { background: #fff; border-radius: 12px; margin-bottom: 16px; border: 1px solid #e8e8e8; overflow: hidden; }
+  .stage-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; transition: background 0.2s; }
+  .stage-header:hover { background: #f8f9fa; }
+  .stage-header .left { display: flex; align-items: center; gap: 12px; }
+  .stage-num { width: 32px; height: 32px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px; color: #666; flex-shrink: 0; }
+  .stage-num.done { background: #00b894; color: #fff; }
+  .stage-num.active { background: #6c5ce7; color: #fff; }
+  .stage-title { font-weight: 600; font-size: 15px; }
+  .stage-deadline { font-size: 12px; color: #999; margin-top: 2px; }
+  .stage-deadline.overdue { color: #ff6b6b; font-weight: 600; }
+  .stage-deadline.soon { color: #e17055; font-weight: 600; }
+  .stage-progress { font-size: 13px; color: #999; display: flex; align-items: center; gap: 8px; }
+  .stage-progress .mini-bar { width: 80px; height: 4px; background: #eee; border-radius: 2px; overflow: hidden; }
+  .stage-progress .mini-fill { height: 100%; background: #6c5ce7; border-radius: 2px; }
+  .stage-tasks { padding: 0 20px 16px; display: none; }
+  .stage-tasks.open { display: block; }
+  .task-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f5f5f5; }
+  .task-item:last-child { border-bottom: none; }
+  .task-checkbox { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #ccc; cursor: pointer; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .task-checkbox.checked { background: #00b894; border-color: #00b894; }
+  .task-checkbox.checked::after { content: '✓'; color: #fff; font-size: 12px; font-weight: bold; }
+  .task-text { font-size: 14px; }
+  .task-text.done { text-decoration: line-through; color: #aaa; }
+  .stage-toggle { font-size: 18px; color: #ccc; transition: transform 0.2s; }
+  .stage-toggle.open { transform: rotate(180deg); }
+  
+  .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; align-items: center; justify-content: center; z-index: 200; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #fff; border-radius: 16px; padding: 32px; width: 90%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
+  .modal h2 { margin-bottom: 20px; font-size: 20px; }
+  .modal .field { margin-bottom: 16px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
+  .field input { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; outline: none; }
+  .field input:focus { border-color: #6c5ce7; }
+  .modal-actions { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; }
+  
+  .back-btn { display: inline-flex; align-items: center; gap: 6px; color: #6c5ce7; font-size: 14px; cursor: pointer; margin-bottom: 16px; font-weight: 500; }
+  .back-btn:hover { text-decoration: underline; }
+  
+  .empty-state { text-align: center; padding: 60px 20px; color: #999; }
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+  
+  .warning-bar { background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px 20px; margin-bottom: 20px; font-size: 14px; color: #856404; display: none; }
+  .warning-bar.show { display: block; }
+  
+  @media (max-width: 768px) {
+    .container { padding: 16px; }
+    .projects-grid { grid-template-columns: 1fr; }
+    .key-dates { flex-direction: column; gap: 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Такие <span>дела</span></h1>
+  <div class="header-actions">
+    <span class="save-indicator" id="saveIndicator">💾</span>
+    <button class="btn btn-save btn-sm" onclick="manualSave()">💾 Сохранить</button>
+    <button class="btn btn-secondary btn-sm" onclick="exportData()">📥 Экспорт</button>
+    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('importFile').click()">📤 Импорт</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn btn-primary" onclick="openNewProject()">+ Новый проект</button>
+  </div>
+</div>
+
+<div class="container">
+  <div class="warning-bar" id="warningBar">
+    ⚠️ Браузер блокирует сохранение данных для файлов, открытых напрямую. 
+    <br><b>Решение:</b> Нажмите «Сохранить» и используйте «Импорт» при следующем открытии, 
+    или запустите файл через локальный сервер (инструкция в чате).
+  </div>
+  <div id="app"></div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>Новый проект</h2>
+    <div class="field"><label>Название выставки</label><input type="text" id="npName" placeholder="Выставка ромашек"></div>
+    <div class="field"><label>Партнёр (организация)</label><input type="text" id="npPartner" placeholder="Музей цветов"></div>
+    <div class="field"><label>Дата выдачи (ДВ)</label><input type="date" id="npIssueDate"></div>
+    <div class="field"><label>Дата открытия</label><input type="date" id="npOpenDate"></div>
+    <div class="field"><label>Дата возврата</label><input type="date" id="npReturnDate"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
+      <button class="btn btn-primary" onclick="createProject()">Создать</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STORAGE ENGINE =====
+let storageAvailable = true;
+
+function testStorage() {
+  try {
+    const test = '__storage_test__';
+    localStorage.setItem(test, test);
+    localStorage.removeItem(test);
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+storageAvailable = testStorage();
+
+function saveData() {
+  try {
+    if (storageAvailable) {
+      localStorage.setItem('takieDela', JSON.stringify(projects));
+      showSaveStatus('saved');
+    } else {
+      showSaveStatus('error');
+      document.getElementById('warningBar').classList.add('show');
+    }
+  } catch (e) {
+    console.error('Save error:', e);
+    showSaveStatus('error');
+    document.getElementById('warningBar').classList.add('show');
+  }
+}
+
+function loadData() {
+  try {
+    if (storageAvailable) {
+      const saved = localStorage.getItem('takieDela');
+      if (saved) {
+        projects = JSON.parse(saved);
+        return;
+      }
+    }
+  } catch (e) {
+    console.error('Load error:', e);
+  }
+  // Demo data if nothing saved
+  projects = [{
+    id: 1,
+    name: "Выставка ромашек",
+    partner: "Музей цветов",
+    issueDate: "2026-08-10",
+    openDate: "2026-08-13",
+    returnDate: "2026-08-25",
+    stages: JSON.parse(JSON.stringify(STAGES_TEMPLATE)).map(s => ({
+      ...s, _open: false,
+      tasks: s.tasks.map(t => ({ text: t, done: false }))
+    }))
+  }];
+}
+
+function manualSave() {
+  saveData();
+  // Also trigger download as backup
+  const indicator = document.getElementById('saveIndicator');
+  indicator.textContent = '✅ Сохранено!';
+  indicator.className = 'save-indicator saved';
+  setTimeout(() => {
+    indicator.textContent = '💾';
+    indicator.className = 'save-indicator';
+  }, 2000);
+}
+
+function showSaveStatus(status) {
+  const indicator = document.getElementById('saveIndicator');
+  if (status === 'saved') {
+    indicator.textContent = '✅';
+    indicator.className = 'save-indicator saved';
+  } else if (status === 'error') {
+    indicator.textContent = '⚠️';
+    indicator.className = 'save-indicator error';
+  }
+  setTimeout(() => {
+    indicator.textContent = '💾';
+    indicator.className = 'save-indicator';
+  }, 2000);
+}
+
+// Auto-save when closing tab
+window.addEventListener('beforeunload', function() {
+  saveData();
+});
+
+// Auto-save every 30 seconds
+setInterval(saveData, 30000);
+
+// ===== DATA MODEL =====
+const STAGES_TEMPLATE = [
+  { id: 1, title: "Приём и анализ заявки", deadlineOffset: null, tasks: [
+    "Регистрация запроса от партнёра",
+    "Запрос и анализ Facility Report (безопасность и логистика площадки)"
+  ]},
+  { id: 2, title: "Данные партнёра и площадки (РФ)", deadlineOffset: null, tasks: [
+    "Организация: название, тип, регион/город",
+    "Контакты: ФИО ответственного, должность, телефон, e-mail",
+    "Адрес: точный адрес экспонирования",
+    "Параметры: планировка залов, ТВР, световая нагрузка"
+  ]},
+  { id: 3, title: "Ключевые даты и жёсткий тайминг", deadlineOffset: null, tasks: [
+    "Определение Даты выдачи (ДВ)",
+    "Определение Даты открытия",
+    "Определение Даты возврата",
+    "Расчёт обратного отсчёта всех дедлайнов"
+  ]},
+  { id: 4, title: "Подготовка предметов и согласование списка", deadlineOffset: -75, tasks: [
+    "Анализ запрошенных предметов",
+    "Оценка состояния сохранности",
+    "Определение условий и сроков экспонирования",
+    "Проверка занятости предметов на другие даты",
+    "Привлечение хранителей коллекций",
+    "Подбор альтернативных предметов при необходимости",
+    "Утверждение окончательного списка"
+  ]},
+  { id: 5, title: "Оформление договора и страховки", deadlineOffset: -60, tasks: [
+    "ЭФЗК: заседание, утверждение страховой оценки, протокол",
+    "Полис: передача данных в СК, расчёт, выпуск полиса",
+    "Договор: согласование условий, подписание"
+  ]},
+  { id: 6, title: "Разрешение министерства", deadlineOffset: -30, tasks: [
+    "Пакет: договор, полис, заявка",
+    "Подача: загрузка сканов через Госкаталог",
+    "Результат: получение официального разрешения"
+  ]},
+  { id: 7, title: "Упаковка и транспортировка", deadlineOffset: -14, tasks: [
+    "Договор: фиксация условий перевозки и ответственности",
+    "Маршрут: адреса упаковки, доставки, возврата и распаковки",
+    "Условия: охрана и хранитель принимающей стороны",
+    "Сопровождение: доверенность хранителю (подпись директора)"
+  ]},
+  { id: 8, title: "Сопровождение предметов и передача", deadlineOffset: 0, tasks: [
+    "Согласование даты приёмки",
+    "Заказ пропуска для автомобиля",
+    "Контроль доверенности передающего лица",
+    "Контрольный осмотр перед отправкой",
+    "Подписание Акта приёма-передачи (переход ответственности)"
+  ]},
+  { id: 9, title: "Открытие выставки и PR", deadlineOffset: null, tasks: [
+    "Присутствие: направление представителя музея на открытие",
+    "Соцсети: публикация поста о событии"
+  ]},
+  { id: 10, title: "Возврат предметов", deadlineOffset: null, tasks: [
+    "Согласование даты приёмки",
+    "Заказ пропуска для автомобиля",
+    "Контроль доверенности передающего лица",
+    "Приёмка прибывших предметов",
+    "Детальный осмотр и фиксация состояния",
+    "Подписание Акта приёма-передачи (возврат)"
+  ]},
+  { id: 12, title: "Итоги и закрытие проекта", deadlineOffset: null, tasks: [
+    "Госкаталог: закрытие сделки возврата (акт возврата)",
+    "Аналитика: получение статистики посещаемости от партнёра",
+    "Архив: сохранение всех документов"
+  ]}
+];
+
+let projects = [];
+let currentView = 'dashboard';
+let currentProjectId = null;
+
+// ===== DATE HELPERS =====
+function addDays(dateStr, days) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split('T')[0];
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr + 'T00:00:00');
+  const months = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+  return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function formatDateShort(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr + 'T00:00:00');
+  return `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`;
+}
+
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(dateStr + 'T00:00:00'); target.setHours(0,0,0,0);
+  return Math.round((target - today) / (1000*60*60*24));
+}
+
+function getStageDeadline(project, stage) {
+  if (stage.id === 8) return project.issueDate;
+  if (stage.id === 9) return project.openDate;
+  if (stage.id === 10) return project.returnDate;
+  if (stage.id === 12) return project.returnDate ? addDays(project.returnDate, 14) : null;
+  if (stage.deadlineOffset !== null && project.issueDate) {
+    return addDays(project.issueDate, stage.deadlineOffset);
+  }
+  return null;
+}
+
+// ===== PROGRESS =====
+function getStageProgress(stage) {
+  if (!stage.tasks.length) return 0;
+  return Math.round((stage.tasks.filter(t => t.done).length / stage.tasks.length) * 100);
+}
+
+function getProjectProgress(project) {
+  let total = 0, done = 0;
+  project.stages.forEach(s => { total += s.tasks.length; done += s.tasks.filter(t => t.done).length; });
+  return total ? Math.round((done / total) * 100) : 0;
+}
+
+// ===== RENDER DASHBOARD =====
+function renderDashboard() {
+  currentView = 'dashboard';
+  const app = document.getElementById('app');
+  
+  if (!projects.length) {
+    app.innerHTML = `<div class="empty-state"><div class="icon">📋</div><h2>Пока нет проектов</h2><p style="margin-top:8px">Нажмите «+ Новый проект», чтобы начать</p></div>`;
+    return;
+  }
+
+  let html = `<div class="projects-grid">`;
+  projects.forEach(p => {
+    const progress = getProjectProgress(p);
+    const issueD = daysUntil(p.issueDate);
+    let statusText = '';
+    if (issueD !== null) {
+      if (issueD < 0) statusText = `<span style="color:#ff6b6b;font-weight:600">Выдача была ${formatDate(p.issueDate)}</span>`;
+      else if (issueD === 0) statusText = `<span style="color:#fdcb6e;font-weight:600">Выдача сегодня!</span>`;
+      else statusText = `<span style="color:#6c5ce7">До выдачи: ${issueD} дн.</span>`;
+    }
+    html += `
+      <div class="project-card" onclick="openProject(${p.id})">
+        <h3>${p.name}</h3>
+        <div class="partner">🏛 ${p.partner}</div>
+        <div class="dates">
+          <span>📦 ${formatDateShort(p.issueDate)}</span>
+          <span>🎉 ${formatDateShort(p.openDate)}</span>
+          <span>↩️ ${formatDateShort(p.returnDate)}</span>
+        </div>
+        <div style="margin-top:12px">${statusText}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+        <div class="progress-text">${progress}% выполнено</div>
+      </div>`;
+  });
+  html += `</div>`;
+  app.innerHTML = html;
+}
+
+// ===== RENDER PROJECT DETAIL =====
+function renderProject() {
+  const p = projects.find(x => x.id === currentProjectId);
+  if (!p) { renderDashboard(); return; }
+  
+  const app = document.getElementById('app');
+  const progress = getProjectProgress(p);
+  
+  const timelinePoints = [
+    { label: 'Подготовка', date: getStageDeadline(p, p.stages.find(s=>s.id===4)) },
+    { label: 'Госкаталог', date: getStageDeadline(p, p.stages.find(s=>s.id===6)) },
+    { label: 'Выдача (ДВ)', date: p.issueDate },
+    { label: 'Открытие', date: p.openDate },
+    { label: 'Возврат', date: p.returnDate },
+    { label: 'Закрытие', date: p.returnDate ? addDays(p.returnDate, 14) : null }
+  ].filter(tp => tp.date);
+
+  let timelineHtml = '';
+  if (timelinePoints.length) {
+    timelineHtml = `<div class="timeline-container"><h3>📅 Таймлайн</h3><div class="timeline"><div class="timeline-line"></div>`;
+    const today = new Date(); today.setHours(0,0,0,0);
+    timelinePoints.forEach(tp => {
+      const d = new Date(tp.date + 'T00:00:00');
+      const dotClass = d <= today ? 'past' : 'future';
+      timelineHtml += `<div class="timeline-point"><div class="timeline-dot ${dotClass}"></div><div class="timeline-label">${tp.label}</div><div class="timeline-date">${formatDateShort(tp.date)}</div></div>`;
+    });
+    timelineHtml += `</div></div>`;
+  }
+
+  let stagesHtml = '';
+  p.stages.forEach(stage => {
+    const sp = getStageProgress(stage);
+    const deadline = getStageDeadline(p, stage);
+    const dLeft = daysUntil(deadline);
+    let deadlineClass = '';
+    let deadlineText = deadline ? formatDate(deadline) : '';
+    if (deadline && dLeft !== null) {
+      if (dLeft < 0 && sp < 100) { deadlineClass = 'overdue'; deadlineText += ` (просрочено ${Math.abs(dLeft)} дн.)`; }
+      else if (dLeft >= 0 && dLeft <= 7 && sp < 100) { deadlineClass = 'soon'; deadlineText += ` (${dLeft} дн.)`; }
+      else if (dLeft > 7) { deadlineText += ` (${dLeft} дн.)`; }
+    }
+    
+    const numClass = sp === 100 ? 'done' : (sp > 0 ? 'active' : '');
+    const isOpen = stage._open ? 'open' : '';
+    const toggleClass = stage._open ? 'open' : '';
+    
+    let tasksHtml = '';
+    stage.tasks.forEach((task, ti) => {
+      tasksHtml += `<div class="task-item"><div class="task-checkbox ${task.done ? 'checked' : ''}" onclick="toggleTask(${p.id},${stage.id},${ti})"></div><span class="task-text ${task.done ? 'done' : ''}">${task.text}</span></div>`;
+    });
+
+    stagesHtml += `
+      <div class="stage">
+        <div class="stage-header" onclick="toggleStage(${p.id},${stage.id})">
+          <div class="left">
+            <div class="stage-num ${numClass}">${stage.id}</div>
+            <div>
+              <div class="stage-title">${stage.title}</div>
+              <div class="stage-deadline ${deadlineClass}">${deadline ? '⏰ ' + deadlineText : ''}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:16px">
+            <div class="stage-progress"><div class="mini-bar"><div class="mini-fill" style="width:${sp}%"></div></div>${sp}%</div>
+            <span class="stage-toggle ${toggleClass}">▼</span>
+          </div>
+        </div>
+        <div class="stage-tasks ${isOpen}">${tasksHtml}</div>
+      </div>`;
+  });
+
+  app.innerHTML = `
+    <div class="back-btn" onclick="renderDashboard()">← Все проекты</div>
+    <div class="project-header">
+      <h2>${p.name}</h2>
+      <div class="meta">🏛 ${p.partner}</div>
+      <div class="key-dates">
+        <div class="key-date highlight"><div class="label">Выдача (ДВ)</div><div class="value">${formatDate(p.issueDate)}</div></div>
+        <div class="key-date"><div class="label">Открытие</div><div class="value">${formatDate(p.openDate)}</div></div>
+        <div class="key-date"><div class="label">Возврат</div><div class="value">${formatDate(p.returnDate)}</div></div>
+        <div class="key-date"><div class="label">Прогресс</div><div class="value" style="color:#6c5ce7">${progress}%</div></div>
+      </div>
+    </div>
+    ${timelineHtml}
+    ${stagesHtml}
+    <div style="margin-top:24px;text-align:right">
+      <button class="btn btn-danger btn-sm" onclick="deleteProject(${p.id})">🗑 Удалить проект</button>
+    </div>`;
+}
+
+// ===== ACTIONS =====
+function toggleStage(pid, sid) {
+  const p = projects.find(x => x.id === pid);
+  const s = p.stages.find(x => x.id === sid);
+  s._open = !s._open;
+  renderProject();
+}
+
+function toggleTask(pid, sid, ti) {
+  const p = projects.find(x => x.id === pid);
+  const s = p.stages.find(x => x.id === sid);
+  s.tasks[ti].done = !s.tasks[ti].done;
+  saveData();
+  renderProject();
+}
+
+function openProject(id) { currentProjectId = id; renderProject(); }
+
+function openNewProject() {
+  document.getElementById('modalOverlay').classList.add('open');
+  ['npName','npPartner','npIssueDate','npOpenDate','npReturnDate'].forEach(id => document.getElementById(id).value = '');
+}
+
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+
+function createProject() {
+  const name = document.getElementById('npName').value.trim();
+  const partner = document.getElementById('npPartner').value.trim();
+  const issueDate = document.getElementById('npIssueDate').value;
+  const openDate = document.getElementById('npOpenDate').value;
+  const returnDate = document.getElementById('npReturnDate').value;
+  
+  if (!name || !issueDate) { alert('Заполните название и дату выдачи'); return; }
+  
+  projects.push({
+    id: Date.now(), name, partner, issueDate, openDate, returnDate,
+    stages: JSON.parse(JSON.stringify(STAGES_TEMPLATE)).map(s => ({
+      ...s, _open: false, tasks: s.tasks.map(t => ({ text: t, done: false }))
+    }))
+  });
+  saveData();
+  closeModal();
+  renderDashboard();
+}
+
+function deleteProject(id) {
+  if (!confirm('Удалить проект?')) return;
+  projects = projects.filter(p => p.id !== id);
+  saveData();
+  renderDashboard();
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(projects, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'takie-dela-backup.json';
+  a.click();
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      projects = JSON.parse(ev.target.result);
+      saveData();
+      renderDashboard();
+      alert('Данные импортированы!');
+    } catch(err) { alert('Ошибка чтения файла'); }
+  };
+  reader.readAsText(file);
+}
+
+// ===== INIT =====
+loadData();
+if (!storageAvailable) {
+  document.getElementById('warningBar').classList.add('show');
+}
+renderDashboard();
+</script>
+</body>
+</html>
