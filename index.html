@@ -118,11 +118,13 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .dash-bar h2{font:700 26px var(--display)}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(295px,1fr));gap:16px;margin-top:14px}
 .pcard{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);padding:18px;
-  cursor:pointer;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s;position:relative;overflow:hidden}
+  cursor:pointer;box-shadow:var(--shadow);transition:transform .25s,box-shadow .25s,opacity .25s;position:relative;overflow:hidden}
 .pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
   background:linear-gradient(90deg,var(--accent),#d97a3f);opacity:0;transition:.25s}
 .pcard:hover{transform:translateY(-4px);box-shadow:0 18px 34px -16px rgba(39,34,25,.3)}
 .pcard:hover::before{opacity:1}
+.pcard.is-done{opacity:.78}
+.pcard.is-done:hover{opacity:1}
 .pcard-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px}
 .orgchip{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);
   background:var(--surface2);border:1px solid var(--line-soft);padding:3px 9px;border-radius:999px;
@@ -145,6 +147,9 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 .empty-big{grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--ink2);
   background:var(--surface);border:1px dashed var(--line);border-radius:var(--r)}
 .empty-big p{margin-bottom:16px}
+.pgrid-divider{grid-column:1/-1;display:flex;align-items:center;gap:12px;color:var(--mut);
+  font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin:12px 0 0}
+.pgrid-divider::before,.pgrid-divider::after{content:'';flex:1;height:1px;background:var(--line)}
 
 /* ---------- project view ---------- */
 .proj-head{padding-top:24px}
@@ -197,16 +202,20 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 .n-st-over{background:var(--red-soft);color:var(--red)}
 .n-st-soon{background:var(--amber-soft);color:var(--amber)}
 .n-st-todo{background:var(--blue-soft);color:var(--blue)}
-.stage-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
-.stage-head h4{font:700 17.5px var(--display)}
+.stage-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.stage-head h4{font:700 17.5px var(--display);display:flex;align-items:center;gap:6px}
+.st-edit{opacity:0}
+.stage-head h4:hover .st-edit{opacity:1}
+.stage-title-input{font:700 17.5px var(--display);border:none;border-bottom:2px solid var(--accent);
+  background:transparent;outline:none;width:100%;max-width:440px;padding:0 0 2px;color:var(--ink)}
 .stage-meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .dl{display:inline-flex;gap:5px;align-items:center;font-size:12.5px;color:var(--mut)}
 .dl.bad{color:var(--red);font-weight:700}
 .tasks{list-style:none;margin:10px 0 4px;border-top:1px dashed var(--line);padding-top:8px}
 .task{display:flex;align-items:flex-start;gap:6px;padding:5px 6px;border-radius:8px;transition:background .15s}
 .task:hover{background:var(--surface2)}
-.task .iconbtn{opacity:0}
-.task:hover .iconbtn{opacity:1}
+.task .t-edit,.task .iconbtn.t-del{opacity:0}
+.task:hover .t-edit,.task:hover .t-del{opacity:1}
 .chk{display:flex;gap:10px;align-items:flex-start;cursor:pointer;flex:1}
 .chk input{position:absolute;opacity:0;width:1px;height:1px}
 .box{flex:none;width:19px;height:19px;margin-top:2px;border:2px solid var(--mut);border-radius:6px;
@@ -216,10 +225,16 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 .chk input:checked + .box svg{opacity:1;transform:scale(1)}
 .chk input:checked ~ .txt{color:var(--mut);text-decoration:line-through;text-decoration-color:rgba(39,34,25,.3)}
 .txt{color:var(--ink2);line-height:1.45}
+.task-edit-input{flex:1;padding:6px 10px;border:1px solid var(--accent);border-radius:8px;
+  font:500 13.5px var(--body);outline:none;background:#fff;box-shadow:0 0 0 3px var(--accent-soft)}
 .stage-actions{display:flex;gap:18px;align-items:center;margin-top:6px;flex-wrap:wrap}
 .task-add-row{display:flex;gap:8px;align-items:center;flex:1;min-width:220px}
 .task-add-row input{flex:1;padding:7px 10px;border:1px solid var(--accent);border-radius:8px;
   font:500 13.5px var(--body);outline:none;background:#fff;box-shadow:0 0 0 3px var(--accent-soft)}
+.divider-done{display:flex;align-items:center;gap:10px;color:var(--green);font-weight:700;font-size:12.5px;
+  letter-spacing:.1em;text-transform:uppercase;margin:20px 0 14px}
+.divider-done::before,.divider-done::after{content:'';flex:1;height:1px;background:var(--line)}
+.divider-done svg{flex:none}
 
 /* ---------- timeline ---------- */
 .tl-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
@@ -478,7 +493,7 @@ const makeStages=()=>STAGES_TEMPLATE.map(s=>({t:s.t,a:s.a,off:s.off,tasks:s.task
 /* ================= state ================= */
 const LS_KEY='takiedela_v15';
 let state=null;
-const ui={view:'dash',projectId:null,tab:'stages',openAttach:null,addingStage:null,noteColor:'sun',noteDraft:'',editNote:null,bookTab:'orgs'};
+const ui={view:'dash',projectId:null,tab:'stages',openAttach:null,addingStage:null,editStage:null,editTask:null,noteColor:'sun',noteDraft:'',editNote:null,bookTab:'orgs'};
 const cur=()=>state.projects.find(p=>p.id===ui.projectId)||null;
 
 function seed(){
@@ -561,6 +576,7 @@ function stageInfo(p,s){
   if(dl&&daysUntil(dl)<=7)return{status:'soon',cls:'st-soon',chipCls:'c-amber',label:started?'В работе':'Скоро'};
   return{status:'todo',cls:'st-todo',chipCls:'c-blue',label:started?'В работе':'Ожидает'};
 }
+const stageComplete=s=>s.tasks.length&&s.tasks.every(t=>t.done);
 
 /* ================= дашборд ================= */
 function dashStats(){
@@ -573,7 +589,7 @@ function dashStats(){
 function projectCard(p,i){
   const st=projStats(p),ph=projPhase(p),org=state.orgs.find(o=>o.id===p.orgId);
   const over=p.stages.reduce((a,s)=>a+(stageInfo(p,s).status==='overdue'?1:0),0);
-  return '<article class="pcard rise" style="animation-delay:'+Math.min(i*70,420)+'ms" data-action="open-project" data-id="'+p.id+'">'
+  return '<article class="pcard rise'+(ph.key==='done'?' is-done':'')+'" style="animation-delay:'+Math.min(i*70,420)+'ms" data-action="open-project" data-id="'+p.id+'">'
    +'<div class="pcard-top">'+(org?'<span class="orgchip">'+esc(org.name)+'</span>':'<span class="orgchip">без партнёра</span>')
    +'<span class="chip '+ph.cls+'">'+ph.label+'</span></div>'
    +'<h3 class="pcard-title">'+esc(p.name)+'</h3>'
@@ -584,6 +600,18 @@ function projectCard(p,i){
 }
 function vDashboard(){
   const s=dashStats(),near=s.upcoming;
+  const act=state.projects.filter(p=>projPhase(p).key!=='done');
+  const fin=state.projects.filter(p=>projPhase(p).key==='done');
+  let cards='';
+  if(!state.projects.length){
+    cards='<div class="empty-big"><p>Проектов пока нет.</p><button class="btn primary" data-action="new-project">'+I.plus+' Создать первый</button></div>';
+  }else{
+    cards=act.map((p,i)=>projectCard(p,i)).join('');
+    if(fin.length){
+      cards+='<div class="pgrid-divider">✳ Выполнено · '+fin.length+'</div>';
+      cards+=fin.map((p,i)=>projectCard(p,i)).join('');
+    }
+  }
   return '<div class="wrap">'
    +'<section class="hero rise"><p class="kicker">Личный трекер музейных выдач · v1.5</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
@@ -595,14 +623,13 @@ function vDashboard(){
    +'</section>'
    +'<section class="dash-bar rise" style="animation-delay:120ms"><h2>Проекты</h2>'
    +'<button class="btn primary" data-action="new-project">'+I.plus+' Новый проект</button></section>'
-   +'<section class="pgrid">'+(state.projects.map((p,i)=>projectCard(p,i)).join('')
-     ||'<div class="empty-big"><p>Проектов пока нет.</p><button class="btn primary" data-action="new-project">'+I.plus+' Создать первый</button></div>')+'</section>'
+   +'<section class="pgrid">'+cards+'</section>'
    +'</div>';
 }
 
 /* ================= проект ================= */
-function dateField(f,label,val){
-  return '<label class="datefield"><span>'+label+'</span><input type="date" value="'+(val||'')+'" data-action="set-date" data-field="'+f+'"></label>';
+function dateField(f,label,val,title){
+  return '<label class="datefield"'+(title?' title="'+title+'"':'')+'><span>'+label+'</span><input type="date" value="'+(val||'')+'" data-action="set-date" data-field="'+f+'"></label>';
 }
 function vProject(){
   const p=cur();
@@ -618,7 +645,10 @@ function vProject(){
    +'<div class="title-side">'
    +(org?'<button class="orgchip" data-action="org-edit" data-id="'+org.id+'" title="Изменить организацию">'+esc(org.name)+'</button>':'<span class="orgchip">партнёр не указан</span>')
    +'<button class="iconbtn danger-h" data-action="delete-project" title="Удалить проект">'+I.trash+'</button></div></div>'
-   +'<div class="dates-line">'+dateField('dv','Дата выдачи',p.dv)+dateField('open','Открытие',p.open)+dateField('ret','Возврат',p.ret)
+   +'<div class="dates-line">'
+   +dateField('dv','Дата выдачи',p.dv)
+   +dateField('open','Открытие',p.open,'Календарь откроется рядом с датой выдачи')
+   +dateField('ret','Возврат',p.ret,'Календарь откроется рядом с датой открытия')
    +'<div class="cd-banner '+cd.cls+'"><b>'+esc(cd.big)+'</b><span>'+esc(cd.lab)+'</span></div></div>'
    +'<div class="proj-progress"><div class="ptrack"><i id="projFill" style="width:'+st.pct+'%"></i></div><span id="projStatsTx">'+st.done+' из '+st.total+' задач · '+st.pct+'%</span></div>'
    +'</div>'
@@ -635,20 +665,27 @@ function renderTab(p){
 
 /* -------- этапы -------- */
 function taskRow(i,t){
+  const editing=ui.editTask&&ui.editTask.stage===i&&ui.editTask.id===t.id;
+  if(editing)return '<li class="task"><input id="taskEditInput" class="task-edit-input" maxlength="160" value="'+esc(t.text)+'"></li>';
   return '<li class="task'+(t.done?' done':'')+'">'
    +'<label class="chk"><input type="checkbox" data-action="task-toggle" data-stage="'+i+'" data-id="'+t.id+'"'+(t.done?' checked':'')+'>'
    +'<span class="box">'+I.check+'</span><span class="txt">'+esc(t.text)+'</span></label>'
-   +(t.custom?'<button class="iconbtn sm danger-h" title="Удалить задачу" data-action="task-del" data-stage="'+i+'" data-id="'+t.id+'">'+I.x+'</button>':'')
+   +'<button class="iconbtn sm t-edit" title="Редактировать текст задачи" data-action="task-edit" data-stage="'+i+'" data-id="'+t.id+'">'+I.pen+'</button>'
+   +(t.custom?'<button class="iconbtn sm danger-h t-del" title="Удалить задачу" data-action="task-del" data-stage="'+i+'" data-id="'+t.id+'">'+I.x+'</button>':'')
    +'</li>';
 }
 function stageCard(p,s,i){
   const inf=stageInfo(p,s),dl=stageDeadline(p,s);
-  const allDone=s.tasks.length&&s.tasks.every(t=>t.done);
+  const allDone=stageComplete(s);
   const adding=ui.addingStage===i;
+  const editingTitle=ui.editStage===i;
   return '<section class="stage '+inf.cls+'" data-stage="'+i+'">'
    +'<div class="stage-num n-'+inf.cls+'">'+(i+1)+'</div>'
    +'<div class="stage-main">'
-   +'<div class="stage-head"><h4>'+esc(s.t)+'</h4>'
+   +'<div class="stage-head">'
+   +(editingTitle
+     ?'<input id="stageTitleInput" class="stage-title-input" maxlength="90" value="'+esc(s.t)+'">'
+     :'<h4>'+esc(s.t)+'<button class="iconbtn sm st-edit" title="Переименовать этап" data-action="stage-title-edit" data-stage="'+i+'">'+I.pen+'</button></h4>')
    +'<div class="stage-meta"><span class="dl'+(inf.status==='overdue'?' bad':'')+'">'+I.cal+(dl?('до '+fmtLong(dl)):'нужна дата возврата')+'</span>'
    +'<span class="chip stage-chip '+inf.chipCls+'">'+inf.label+'</span></div></div>'
    +'<ul class="tasks">'+s.tasks.map(t=>taskRow(i,t)).join('')+'</ul>'
@@ -659,13 +696,24 @@ function stageCard(p,s,i){
    +'<button class="linkbtn" data-action="stage-toggle-all" data-stage="'+i+'">'+(allDone?'Сбросить отметки':'Отметить все')+'</button>'
    +'</div></div></section>';
 }
+function stagesInner(p){
+  const order=p.stages.map((s,i)=>({s,i}));
+  const act=order.filter(x=>!stageComplete(x.s));
+  const fin=order.filter(x=>stageComplete(x.s));
+  let h=act.map(x=>stageCard(p,x.s,x.i)).join('');
+  if(fin.length){
+    h+='<div class="divider-done">'+I.check+' Выполнено · '+fin.length+'</div>';
+    h+=fin.map(x=>stageCard(p,x.s,x.i)).join('');
+  }
+  return h;
+}
 function stagesTab(p){
-  return '<p class="hint rise">Дедлайны этапов рассчитываются автоматически от даты выдачи и возврата. Отмечайте задачи — прогресс обновится сам.</p>'
-   +'<div id="stagesWrap" class="rise" style="animation-delay:60ms">'+p.stages.map((s,i)=>stageCard(p,s,i)).join('')+'</div>';
+  return '<p class="hint rise">Дедлайны этапов рассчитываются автоматически от даты выдачи и возврата. Тексты этапов и задач можно менять под свой процесс (карандаш). Выполненные на 100% этапы опускаются вниз.</p>'
+   +'<div id="stagesWrap" class="rise" style="animation-delay:60ms">'+stagesInner(p)+'</div>';
 }
 function replaceStages(){
   const p=cur(),w=$('#stagesWrap');
-  if(p&&w){w.innerHTML=p.stages.map((s,i)=>stageCard(p,s,i)).join('');updateProjectProgress();}
+  if(p&&w){w.innerHTML=stagesInner(p);updateProjectProgress();}
 }
 function updateProjectProgress(){
   const p=cur();if(!p)return;
@@ -700,6 +748,41 @@ function commitTaskAdd(){
   const v=inp.value.trim(),idx=ui.addingStage;
   ui.addingStage=null;
   if(v&&idx!=null){cur().stages[idx].tasks.push({id:uid(),text:v,done:false,custom:true});persist();}
+  replaceStages();
+}
+function focusStageTitle(){
+  const inp=$('#stageTitleInput');if(!inp)return;
+  inp.focus();inp.select();
+  inp.addEventListener('keydown',ev=>{
+    if(ev.key==='Enter'){ev.preventDefault();inp.blur();}
+    else if(ev.key==='Escape'){ui.editStage=null;replaceStages();}
+  });
+  inp.addEventListener('blur',commitStageTitle);
+}
+function commitStageTitle(){
+  const inp=$('#stageTitleInput');if(!inp)return;
+  const v=inp.value.trim(),i=ui.editStage;
+  ui.editStage=null;
+  if(v&&i!=null){cur().stages[i].t=v;persist();}
+  replaceStages();
+}
+function focusTaskEdit(){
+  const inp=$('#taskEditInput');if(!inp)return;
+  inp.focus();inp.select();
+  inp.addEventListener('keydown',ev=>{
+    if(ev.key==='Enter'){ev.preventDefault();inp.blur();}
+    else if(ev.key==='Escape'){ui.editTask=null;replaceStages();}
+  });
+  inp.addEventListener('blur',commitTaskEdit);
+}
+function commitTaskEdit(){
+  const inp=$('#taskEditInput');if(!inp)return;
+  const v=inp.value.trim(),et=ui.editTask;
+  ui.editTask=null;
+  if(et&&v){
+    const p=cur(),t=p.stages[et.stage].tasks.find(x=>x.id===et.id);
+    if(t){t.text=v;persist();}
+  }
   replaceStages();
 }
 let renaming=false;
@@ -911,7 +994,7 @@ function openNewProject(){
    +'<label>Партнёр<input id="np-org" list="orgList" placeholder="Выберите из списка или введите новую"><datalist id="orgList">'
    +state.orgs.map(o=>'<option value="'+esc(o.name)+'">').join('')+'</datalist></label>'
    +'<div class="grid3"><label>Дата выдачи (ДВ) *<input type="date" id="np-dv"></label>'
-   +'<label>Открытие<input type="date" id="np-open"></label>'
+   +'<label>Открытие<input type="date" id="np-open" title="Можно оставить пустым — подставится дата выдачи"></label>'
    +'<label>Возврат<input type="date" id="np-ret"></label></div>'
    +'<p class="modal-hint">Дедлайны всех 12 этапов рассчитаются автоматически от даты выдачи и даты возврата.</p>'
    +'<div class="modal-actions"><button class="btn ghost" data-action="modal-close">Отмена</button>'
@@ -1050,13 +1133,15 @@ function onClick(e){
     case 'nav-dash':ui.view='dash';renderApp();window.scrollTo(0,0);break;
     case 'nav-book':ui.view='book';renderApp();window.scrollTo(0,0);break;
     case 'new-project':openNewProject();break;
-    case 'open-project':ui.view='project';ui.projectId=id;ui.tab='stages';ui.openAttach=null;ui.addingStage=null;renderApp();window.scrollTo(0,0);break;
+    case 'open-project':ui.view='project';ui.projectId=id;ui.tab='stages';ui.openAttach=null;ui.addingStage=null;ui.editStage=null;ui.editTask=null;renderApp();window.scrollTo(0,0);break;
     case 'back':ui.view='dash';renderApp();window.scrollTo(0,0);break;
     case 'rename-start':startRename();break;
     case 'delete-project':deleteProject();break;
-    case 'tab':ui.tab=el.dataset.tab;ui.openAttach=null;ui.addingStage=null;refreshTab();break;
-    case 'task-add':ui.addingStage=+el.dataset.stage;replaceStages();focusTaskAdd();break;
+    case 'tab':ui.tab=el.dataset.tab;ui.openAttach=null;ui.addingStage=null;ui.editStage=null;ui.editTask=null;refreshTab();break;
+    case 'task-add':ui.addingStage=+el.dataset.stage;ui.editTask=null;replaceStages();focusTaskAdd();break;
     case 'task-add-cancel':ui.addingStage=null;replaceStages();break;
+    case 'task-edit':ui.editTask={stage:+el.dataset.stage,id:el.dataset.id};ui.editStage=null;ui.addingStage=null;replaceStages();focusTaskEdit();break;
+    case 'stage-title-edit':ui.editStage=+el.dataset.stage;ui.editTask=null;replaceStages();focusStageTitle();break;
     case 'task-del':{
       const s=p.stages[+el.dataset.stage];
       s.tasks=s.tasks.filter(t=>t.id!==id);
@@ -1110,9 +1195,13 @@ function onChange(e){
     const p=cur();if(!p)return;
     const s=p.stages[+el.dataset.stage],t=s.tasks.find(x=>x.id===el.dataset.id);
     if(!t)return;
-    t.done=el.checked;persist();
+    const wasAll=s.tasks.every(x=>x.done);
+    t.done=el.checked;
+    const nowAll=s.tasks.every(x=>x.done);
+    persist();
     const li=el.closest('.task');if(li)li.classList.toggle('done',t.done);
     updateStageChip(+el.dataset.stage);updateProjectProgress();
+    if(wasAll!==nowAll)setTimeout(replaceStages,450);
   }else if(a==='set-date'){
     const p=cur();if(!p)return;
     p[el.dataset.field]=el.value||'';
@@ -1123,6 +1212,17 @@ function onChange(e){
     const i=arr.indexOf(el.dataset.id);
     if(el.checked&&i===-1)arr.push(el.dataset.id);
     if(!el.checked&&i>-1)arr.splice(i,1);
+    persist();refreshTab();
+  }
+}
+function onFocusIn(e){
+  const el=e.target;
+  if(!el||!el.dataset||el.dataset.action!=='set-date')return;
+  const p=cur();if(!p||el.value)return;
+  const f=el.dataset.field;
+  const def=f==='open'?p.dv:(f==='ret'?(p.open||p.dv):null);
+  if(def){
+    el.value=def;p[f]=def;
     persist();refreshTab();
   }
 }
@@ -1148,6 +1248,7 @@ function init(){
   renderApp();
   document.addEventListener('click',onClick);
   document.addEventListener('change',onChange);
+  document.addEventListener('focusin',onFocusIn);
   document.addEventListener('keydown',onKey);
   $('#fileInput').addEventListener('change',e=>{
     if(e.target.files&&e.target.files[0])importFile(e.target.files[0]);
