@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v1.5</title>
-<meta name="description" content="Персональный трекер музейных выдач: проекты, 12 этапов, автодедлайны, контакты и заметки.">
+<title>Такие дела — выдачи и проекты · v1.6</title>
+<meta name="description" content="Персональный трекер музейных выдач: проекты, 12 этапов, автодедлайны, контакты, исполнители и заметки.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2v20M4.2 6.5l15.6 11M19.8 6.5L4.2 17.5' stroke='%23c14e24' stroke-width='2.6' stroke-linecap='round' fill='none'/></svg>">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/500.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/700.css" rel="stylesheet">
@@ -91,6 +91,7 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .c-red{background:var(--red-soft);color:var(--red)}
 .c-muted{background:var(--line-soft);color:var(--ink2)}
 .c-type{background:var(--surface2);color:var(--ink2);border:1px solid var(--line-soft)}
+.c-exec{background:var(--blue-soft);color:var(--blue)}
 .hint{color:var(--mut);font-size:13px;margin:14px 2px;line-height:1.5}
 .empty{color:var(--mut);font-size:13.5px;padding:6px 0}
 .dim2{color:var(--mut)}
@@ -212,11 +213,11 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 .dl{display:inline-flex;gap:5px;align-items:center;font-size:12.5px;color:var(--mut)}
 .dl.bad{color:var(--red);font-weight:700}
 .tasks{list-style:none;margin:10px 0 4px;border-top:1px dashed var(--line);padding-top:8px}
-.task{display:flex;align-items:flex-start;gap:6px;padding:5px 6px;border-radius:8px;transition:background .15s}
+.task{display:flex;align-items:flex-start;gap:6px;padding:5px 6px;border-radius:8px;transition:background .15s;flex-wrap:wrap}
 .task:hover{background:var(--surface2)}
 .task .t-edit,.task .iconbtn.t-del{opacity:0}
 .task:hover .t-edit,.task:hover .t-del{opacity:1}
-.chk{display:flex;gap:10px;align-items:flex-start;cursor:pointer;flex:1}
+.chk{display:flex;gap:10px;align-items:flex-start;cursor:pointer;flex:1;min-width:min(230px,100%)}
 .chk input{position:absolute;opacity:0;width:1px;height:1px}
 .box{flex:none;width:19px;height:19px;margin-top:2px;border:2px solid var(--mut);border-radius:6px;
   display:flex;align-items:center;justify-content:center;color:#fff;transition:all .18s}
@@ -225,7 +226,14 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 .chk input:checked + .box svg{opacity:1;transform:scale(1)}
 .chk input:checked ~ .txt{color:var(--mut);text-decoration:line-through;text-decoration-color:rgba(39,34,25,.3)}
 .txt{color:var(--ink2);line-height:1.45}
-.task-edit-input{flex:1;padding:6px 10px;border:1px solid var(--accent);border-radius:8px;
+.task-assign{font:600 12px var(--body);color:var(--ink2);border:1px dashed var(--line);border-radius:999px;
+  padding:3px 9px;background:transparent;cursor:pointer;max-width:180px;transition:.15s;margin-top:1px}
+select.task-assign{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.task-assign:hover{border-color:var(--blue);color:var(--blue)}
+.task-assign.has{border-style:solid;border-color:var(--blue);color:var(--blue);background:var(--blue-soft)}
+button.task-assign{display:inline-flex;align-items:center;gap:5px;color:var(--mut)}
+button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
+.task-edit-input{flex:1;min-width:200px;padding:6px 10px;border:1px solid var(--accent);border-radius:8px;
   font:500 13.5px var(--body);outline:none;background:#fff;box-shadow:0 0 0 3px var(--accent-soft)}
 .stage-actions{display:flex;gap:18px;align-items:center;margin-top:6px;flex-wrap:wrap}
 .task-add-row{display:flex;gap:8px;align-items:center;flex:1;min-width:220px}
@@ -398,7 +406,7 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач · версия 1.5 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач · версия 1.6 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -434,7 +442,8 @@ const I={
   x:svg('<path d="M6 6l12 12M18 6L6 18"/>'),
   check:svg('<path d="M4 12l5 5L20 7"/>'),
   cal:svg('<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/>'),
-  pin:svg('<circle cx="12" cy="8" r="5"/><path d="M12 13v8"/>')
+  pin:svg('<circle cx="12" cy="8" r="5"/><path d="M12 13v8"/>'),
+  user:svg('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>')
 };
 
 /* ================= шаблон 12 этапов ================= */
@@ -488,7 +497,7 @@ const STAGES_TEMPLATE=[
    'При необходимости — отчёт о повреждениях и претензия',
    'Договор закрыт, документы переданы в архив']}
 ];
-const makeStages=()=>STAGES_TEMPLATE.map(s=>({t:s.t,a:s.a,off:s.off,tasks:s.tasks.map(x=>({id:uid(),text:x,done:false}))}));
+const makeStages=()=>STAGES_TEMPLATE.map(s=>({t:s.t,a:s.a,off:s.off,tasks:s.tasks.map(x=>({id:uid(),text:x,done:false,assigneeId:''}))}));
 
 /* ================= state ================= */
 const LS_KEY='takiedela_v15';
@@ -503,29 +512,39 @@ function seed(){
   const c1={id:uid(),name:'Анна Соколова',position:'Куратор выставок',orgIds:[orgA.id],phone:'+7 903 555-12-89',email:'a.sokolova@flowermuseum.ru',note:'Главный контакт по «Выставке ромашек»'};
   const c2={id:uid(),name:'Дмитрий Верещагин',position:'Менеджер по логистике',orgIds:[orgA.id,orgB.id],phone:'+7 921 400-77-31',email:'d.vereshchagin@luga.gallery',note:'Климат-боксы, сопровождение грузов'};
   const c3={id:uid(),name:'Мария Ковалёва',position:'Хранитель фонда керамики',orgIds:[orgB.id],phone:'',email:'m.kovaleva@luga.gallery',note:''};
+  const e1={id:uid(),name:'Ирина Мельник',role:'Реставратор',phone:'+7 916 220-34-58',email:'i.melnik@flowermuseum.ru',note:'Осмотр и паспорта сохранности'};
+  const e2={id:uid(),name:'Сергей Ковалевский',role:'Упаковщик · курьер',phone:'+7 905 118-72-40',email:'',note:'Работает с хрупкой керамикой и ботаникой'};
+  const e3={id:uid(),name:'Ольга Ремез',role:'Договоры и страхование',phone:'',email:'o.remez@flowermuseum.ru',note:''};
 
   const p1={id:uid(),name:'Выставка ромашек',orgId:orgA.id,dv:addDaysISO(T,38),open:addDaysISO(T,41),ret:addDaysISO(T,118),stages:makeStages(),orgIds:[orgA.id],contactIds:[c1.id,c2.id]};
   const p2={id:uid(),name:'Фарфор XVIII века',orgId:orgB.id,dv:addDaysISO(T,104),open:addDaysISO(T,108),ret:addDaysISO(T,190),stages:makeStages(),orgIds:[orgB.id],contactIds:[c3.id]};
   const p3={id:uid(),name:'Гербарий Севера',orgId:orgA.id,dv:addDaysISO(T,-12),open:addDaysISO(T,-9),ret:addDaysISO(T,66),stages:makeStages(),orgIds:[orgA.id],contactIds:[c1.id]};
   const done=(p,s,n)=>{for(let k=0;k<n;k++){const t=p.stages[s].tasks[k];if(t)t.done=true;}};
+  const asg=(p,s,t,ex)=>{const task=p.stages[s].tasks[t];if(task)task.assigneeId=ex.id;};
   [0,1,2].forEach(s=>done(p1,s,3)); done(p1,3,2); done(p1,4,1);
+  asg(p1,2,0,e1); asg(p1,2,1,e1); asg(p1,3,1,e3); asg(p1,4,1,e2); asg(p1,4,2,e2);
   done(p2,0,3); done(p2,1,2);
+  asg(p2,0,1,e3);
   for(let s=0;s<8;s++) done(p3,s,3); done(p3,8,1);
+  asg(p3,2,0,e1); asg(p3,7,0,e2);
 
   const notes=[
     {id:uid(),projectId:p1.id,text:'Ромашки просят витрину №4 — уточнить у Анны до подписания договора.',color:'sun',pinned:true,createdAt:addDaysISO(T,-3)},
     {id:uid(),projectId:p1.id,text:'Страховая просит обновлённые фото паспортов сохранности до конца недели.',color:'rose',pinned:false,createdAt:addDaysISO(T,-1)},
-    {id:uid(),projectId:p1.id,text:'Дмитрий подтвердил климат-бокс на 22 предмета.',color:'mint',pinned:false,createdAt:T},
+    {id:uid(),projectId:p1.id,text:'Сергей подтвердил климат-бокс на 22 предмета.',color:'mint',pinned:false,createdAt:T},
     {id:uid(),projectId:p2.id,text:'Проверить трещину на блюдце №12 перед фотофиксацией.',color:'sky',pinned:false,createdAt:T}
   ];
-  return {projects:[p1,p2,p3],orgs:[orgA,orgB],contacts:[c1,c2,c3],notes};
+  return {projects:[p1,p2,p3],orgs:[orgA,orgB],contacts:[c1,c2,c3],executors:[e1,e2,e3],notes};
+}
+function normalize(d){
+  return {projects:Array.isArray(d.projects)?d.projects:[],orgs:d.orgs||[],contacts:d.contacts||[],executors:d.executors||[],notes:d.notes||[]};
 }
 function persist(flash){
   try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}
   if(flash!==false)flashSave();
 }
 function load(){
-  try{const raw=localStorage.getItem(LS_KEY);if(raw){state=JSON.parse(raw);if(state&&Array.isArray(state.projects))return;}}catch(e){}
+  try{const raw=localStorage.getItem(LS_KEY);if(raw){const d=JSON.parse(raw);if(d&&Array.isArray(d.projects)){state=normalize(d);return;}}}catch(e){}
   state=seed();persist(false);
 }
 function flashSave(){
@@ -577,6 +596,8 @@ function stageInfo(p,s){
   return{status:'todo',cls:'st-todo',chipCls:'c-blue',label:started?'В работе':'Ожидает'};
 }
 const stageComplete=s=>s.tasks.length&&s.tasks.every(t=>t.done);
+const execById=id=>state.executors.find(x=>x.id===id)||null;
+const execTasksCount=id=>state.projects.reduce((a,p)=>a+p.stages.reduce((b,s)=>b+s.tasks.filter(t=>(t.assigneeId||'')===id).length,0),0);
 
 /* ================= дашборд ================= */
 function dashStats(){
@@ -613,7 +634,7 @@ function vDashboard(){
     }
   }
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер музейных выдач · v1.5</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер музейных выдач · v1.6</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Проекты, чек-листы и дедлайны, которые считаются сами — от даты выдачи до возврата.</p></section>'
    +'<section class="stats rise" style="animation-delay:70ms">'
@@ -664,12 +685,23 @@ function renderTab(p){
 }
 
 /* -------- этапы -------- */
+function assignControl(i,t){
+  const curId=t.assigneeId||'';
+  if(!state.executors.length){
+    return '<button class="task-assign" data-action="goto-executors" title="База исполнителей пуста — добавить в справочнике">'+I.user+' исполнитель</button>';
+  }
+  return '<select class="task-assign'+(curId?' has':'')+'" data-action="task-assign" data-stage="'+i+'" data-id="'+t.id+'" title="Исполнитель задачи">'
+   +'<option value="">— исполнитель —</option>'
+   +state.executors.map(x=>'<option value="'+x.id+'"'+(curId===x.id?' selected':'')+'>'+esc(x.name)+'</option>').join('')
+   +'</select>';
+}
 function taskRow(i,t){
   const editing=ui.editTask&&ui.editTask.stage===i&&ui.editTask.id===t.id;
   if(editing)return '<li class="task"><input id="taskEditInput" class="task-edit-input" maxlength="160" value="'+esc(t.text)+'"></li>';
   return '<li class="task'+(t.done?' done':'')+'">'
    +'<label class="chk"><input type="checkbox" data-action="task-toggle" data-stage="'+i+'" data-id="'+t.id+'"'+(t.done?' checked':'')+'>'
    +'<span class="box">'+I.check+'</span><span class="txt">'+esc(t.text)+'</span></label>'
+   +assignControl(i,t)
    +'<button class="iconbtn sm t-edit" title="Редактировать текст задачи" data-action="task-edit" data-stage="'+i+'" data-id="'+t.id+'">'+I.pen+'</button>'
    +(t.custom?'<button class="iconbtn sm danger-h t-del" title="Удалить задачу" data-action="task-del" data-stage="'+i+'" data-id="'+t.id+'">'+I.x+'</button>':'')
    +'</li>';
@@ -708,7 +740,7 @@ function stagesInner(p){
   return h;
 }
 function stagesTab(p){
-  return '<p class="hint rise">Дедлайны этапов рассчитываются автоматически от даты выдачи и возврата. Тексты этапов и задач можно менять под свой процесс (карандаш). Выполненные на 100% этапы опускаются вниз.</p>'
+  return '<p class="hint rise">Дедлайны этапов рассчитываются автоматически от даты выдачи и возврата. Тексты этапов и задач можно менять (карандаш), а в выпадающем списке у задачи — указать исполнителя из справочника. Выполненные на 100% этапы опускаются вниз.</p>'
    +'<div id="stagesWrap" class="rise" style="animation-delay:60ms">'+stagesInner(p)+'</div>';
 }
 function replaceStages(){
@@ -747,7 +779,7 @@ function commitTaskAdd(){
   const inp=$('#taskAddInput');if(!inp)return;
   const v=inp.value.trim(),idx=ui.addingStage;
   ui.addingStage=null;
-  if(v&&idx!=null){cur().stages[idx].tasks.push({id:uid(),text:v,done:false,custom:true});persist();}
+  if(v&&idx!=null){cur().stages[idx].tasks.push({id:uid(),text:v,done:false,custom:true,assigneeId:''});persist();}
   replaceStages();
 }
 function focusStageTitle(){
@@ -881,7 +913,7 @@ function contactsTab(p){
    +'<button class="btn ghost sm" data-action="attach-open" data-kind="contact">'+(ui.openAttach==='contact'?'Скрыть список':I.plus+' Добавить')+'</button></div>'
    +(pc.length?pc.map(contactRow).join(''):'<p class="empty">Контакты пока не привязаны.</p>')
    +(ui.openAttach==='contact'?attachPanel('contact',p):'')+'</section>'
-   +'</div><p class="hint">Общая база партнёров живёт в разделе <button class="linkbtn" data-action="goto-book">Справочник →</button></p>';
+   +'</div><p class="hint">База исполнителей для задач — в разделе <button class="linkbtn" data-action="goto-executors">Справочник → Исполнители</button></p>';
 }
 
 /* -------- заметки -------- */
@@ -937,19 +969,34 @@ function contactBookCard(c,i){
    +'<div class="bcard-actions"><button class="btn ghost sm" data-action="contact-edit" data-id="'+c.id+'">'+I.pen+' Изменить</button>'
    +'<button class="iconbtn danger-h" title="Удалить" data-action="contact-del" data-id="'+c.id+'">'+I.trash+'</button></div></article>';
 }
+function execBookCard(x,i){
+  const cnt=execTasksCount(x.id);
+  return '<article class="bcard rise" style="animation-delay:'+Math.min(i*60,360)+'ms">'
+   +'<div class="bcard-head"><h3>'+esc(x.name)+'</h3>'+(x.role?'<span class="chip c-exec">'+esc(x.role)+'</span>':'')+'</div>'
+   +(x.phone?'<p class="bline">☎ '+esc(x.phone)+'</p>':'')
+   +(x.email?'<p class="bline">✉ '+esc(x.email)+'</p>':'')
+   +(x.note?'<p class="bnote">'+esc(x.note)+'</p>':'')
+   +'<p class="bmeta">Назначен задач: '+cnt+'</p>'
+   +'<div class="bcard-actions"><button class="btn ghost sm" data-action="exec-edit" data-id="'+x.id+'">'+I.pen+' Изменить</button>'
+   +'<button class="iconbtn danger-h" title="Удалить" data-action="exec-del" data-id="'+x.id+'">'+I.trash+'</button></div></article>';
+}
 function vBook(){
-  const o=state.orgs,c=state.contacts;
+  const o=state.orgs,c=state.contacts,ex=state.executors;
+  let body='';
+  if(ui.bookTab==='orgs')body=o.map(orgBookCard).join('')||'<div class="empty-big"><p>Организаций пока нет.</p></div>';
+  else if(ui.bookTab==='contacts')body=c.map(contactBookCard).join('')||'<div class="empty-big"><p>Контактов пока нет.</p></div>';
+  else body=ex.map(execBookCard).join('')||'<div class="empty-big"><p>Исполнителей пока нет.</p><p style="margin-top:6px;font-size:13px;color:var(--mut)">Это коллеги, которых вы назначаете на задачи в проектах.</p></div>';
   return '<div class="wrap">'
-   +'<section class="book-head rise"><div><p class="kicker">Справочник</p><h1>Контакты и организации</h1>'
-   +'<p class="lede small">Общая база партнёров: привязывайте их к проектам в один клик.</p></div>'
+   +'<section class="book-head rise"><div><p class="kicker">Справочник</p><h1>Партнёры и команда</h1>'
+   +'<p class="lede small">Организации и контакты — для проектов. Исполнители — коллеги, которых можно назначать на задачи.</p></div>'
    +'<div class="row-gap"><button class="btn ghost" data-action="org-new">'+I.plus+' Организация</button>'
-   +'<button class="btn primary" data-action="contact-new">'+I.plus+' Контакт</button></div></section>'
+   +'<button class="btn ghost" data-action="contact-new">'+I.plus+' Контакт</button>'
+   +'<button class="btn primary" data-action="exec-new">'+I.plus+' Исполнитель</button></div></section>'
    +'<nav class="ptabs rise" style="animation-delay:60ms">'
    +'<button class="ptab'+(ui.bookTab==='orgs'?' active':'')+'" data-action="book-tab" data-tab="orgs">Организации <span class="cnt">'+o.length+'</span></button>'
-   +'<button class="ptab'+(ui.bookTab==='contacts'?' active':'')+'" data-action="book-tab" data-tab="contacts">Контакты <span class="cnt">'+c.length+'</span></button></nav>'
-   +'<div class="bgrid">'+(ui.bookTab==='orgs'
-     ?(o.map(orgBookCard).join('')||'<div class="empty-big"><p>Организаций пока нет.</p></div>')
-     :(c.map(contactBookCard).join('')||'<div class="empty-big"><p>Контактов пока нет.</p></div>'))+'</div>'
+   +'<button class="ptab'+(ui.bookTab==='contacts'?' active':'')+'" data-action="book-tab" data-tab="contacts">Контакты <span class="cnt">'+c.length+'</span></button>'
+   +'<button class="ptab'+(ui.bookTab==='execs'?' active':'')+'" data-action="book-tab" data-tab="execs">Исполнители <span class="cnt">'+ex.length+'</span></button></nav>'
+   +'<div class="bgrid">'+body+'</div>'
    +'</div>';
 }
 
@@ -1071,6 +1118,29 @@ function saveContact(id){
   else state.contacts.push(Object.assign({id:uid()},data));
   persist();closeModal();renderApp();toast('Сохранено');
 }
+function openExecModal(x){
+  openModal('<h3>'+(x?'Изменить исполнителя':'Новый исполнитель')+'</h3>'
+   +'<label>ФИО *<input id="m-name" maxlength="90" placeholder="Имя Фамилия"></label>'
+   +'<label>Роль / специализация<input id="m-role" maxlength="90" placeholder="Реставратор, упаковщик, курьер…"></label>'
+   +'<div class="grid2"><label>Телефон<input id="m-phone" placeholder="+7 …"></label>'
+   +'<label>E-mail<input id="m-email" placeholder="mail@…"></label></div>'
+   +'<label>Заметка<textarea id="m-note" rows="2" placeholder="Например: работает только с керамикой"></textarea></label>'
+   +'<div class="modal-actions"><button class="btn ghost" data-action="modal-close">Отмена</button>'
+   +'<button class="btn primary" data-action="exec-save" data-id="'+(x?x.id:'')+'">'+(x?'Сохранить':'Добавить')+'</button></div>');
+  if(x){
+    $('#m-name').value=x.name||'';$('#m-role').value=x.role||'';
+    $('#m-phone').value=x.phone||'';$('#m-email').value=x.email||'';$('#m-note').value=x.note||'';
+  }
+  $('#m-name').focus();
+}
+function saveExec(id){
+  const name=$('#m-name').value.trim();
+  if(!name){toast('Укажите ФИО','err');return;}
+  const data={name:name,role:$('#m-role').value.trim(),phone:$('#m-phone').value.trim(),email:$('#m-email').value.trim(),note:$('#m-note').value.trim()};
+  if(id){const x=state.executors.find(e=>e.id===id);if(x)Object.assign(x,data);}
+  else state.executors.push(Object.assign({id:uid()},data));
+  persist();closeModal();renderApp();toast('Сохранено');
+}
 function delOrg(id){
   const o=state.orgs.find(x=>x.id===id);if(!o)return;
   askConfirm('Удалить организацию «'+esc(o.name)+'»? Она будет отвязана от проектов и контактов.',()=>{
@@ -1088,6 +1158,14 @@ function delContact(id){
     persist();renderApp();toast('Контакт удалён');
   });
 }
+function delExec(id){
+  const x=state.executors.find(e=>e.id===id);if(!x)return;
+  askConfirm('Удалить исполнителя «'+esc(x.name)+'»? Он будет снят со всех задач.',()=>{
+    state.executors=state.executors.filter(e=>e.id!==id);
+    state.projects.forEach(p=>p.stages.forEach(s=>s.tasks.forEach(t=>{if((t.assigneeId||'')===id)t.assigneeId='';})));
+    persist();renderApp();toast('Исполнитель удалён');
+  });
+}
 function deleteProject(){
   const p=cur();if(!p)return;
   askConfirm('Удалить проект «'+esc(p.name)+'» вместе с заметками? Это действие необратимо.',()=>{
@@ -1099,7 +1177,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'1.5',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'1.6',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
@@ -1110,7 +1188,7 @@ function importFile(file){
     try{
       const j=JSON.parse(r.result),d=j.data||j;
       if(!Array.isArray(d.projects))throw new Error('bad');
-      state={projects:d.projects,orgs:d.orgs||[],contacts:d.contacts||[],notes:d.notes||[]};
+      state=normalize(d);
       persist();ui.view='dash';ui.projectId=null;renderApp();toast('Данные импортированы');
     }catch(e){toast('Не удалось прочитать файл','err');}
   };
@@ -1162,18 +1240,23 @@ function onClick(e){
       const idx=arr.indexOf(id);if(idx>-1)arr.splice(idx,1);
       persist();refreshTab();break;
     }
-    case 'goto-book':ui.view='book';renderApp();window.scrollTo(0,0);break;
+    case 'goto-book':ui.view='book';ui.bookTab='orgs';renderApp();window.scrollTo(0,0);break;
+    case 'goto-executors':ui.view='book';ui.bookTab='execs';renderApp();window.scrollTo(0,0);break;
     case 'org-edit':{const o=state.orgs.find(x=>x.id===id);if(o)openOrgModal(o);break;}
     case 'contact-edit':{const c=state.contacts.find(x=>x.id===id);if(c)openContactModal(c);break;}
+    case 'exec-edit':{const x=state.executors.find(e=>e.id===id);if(x)openExecModal(x);break;}
     case 'org-del':delOrg(id);break;
     case 'contact-del':delContact(id);break;
+    case 'exec-del':delExec(id);break;
     case 'org-new':openOrgModal();break;
     case 'contact-new':openContactModal();break;
+    case 'exec-new':openExecModal();break;
     case 'book-tab':ui.bookTab=el.dataset.tab;renderApp();break;
     case 'modal-close':closeModal();break;
     case 'np-create':createProject();break;
     case 'org-save':saveOrg(el.dataset.id);break;
     case 'contact-save':saveContact(el.dataset.id);break;
+    case 'exec-save':saveExec(el.dataset.id);break;
     case 'export':exportData();break;
     case 'import':$('#fileInput').click();break;
     case 'note-color':ui.noteColor=el.dataset.c;$$('.sw').forEach(s=>s.classList.toggle('active',s.dataset.c===ui.noteColor));break;
@@ -1202,6 +1285,14 @@ function onChange(e){
     const li=el.closest('.task');if(li)li.classList.toggle('done',t.done);
     updateStageChip(+el.dataset.stage);updateProjectProgress();
     if(wasAll!==nowAll)setTimeout(replaceStages,450);
+  }else if(a==='task-assign'){
+    const p=cur();if(!p)return;
+    const s=p.stages[+el.dataset.stage],t=s.tasks.find(x=>x.id===el.dataset.id);
+    if(!t)return;
+    t.assigneeId=el.value||'';
+    persist();
+    el.classList.toggle('has',!!t.assigneeId);
+    if(t.assigneeId){const x=execById(t.assigneeId);if(x)toast('Исполнитель: '+x.name);}
   }else if(a==='set-date'){
     const p=cur();if(!p)return;
     p[el.dataset.field]=el.value||'';
