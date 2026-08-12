@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v1.8</title>
+<title>Такие дела — выдачи и проекты · v1.9</title>
 <meta name="description" content="Персональный трекер музейных выдач: проекты, этапы, автодедлайны, контакты, исполнители и заметки.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2v20M4.2 6.5l15.6 11M19.8 6.5L4.2 17.5' stroke='%23c14e24' stroke-width='2.6' stroke-linecap='round' fill='none'/></svg>">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/500.css" rel="stylesheet">
@@ -412,7 +412,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач · версия 1.8 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач · версия 1.9 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -458,10 +458,18 @@ const MERGED_STAGE={
   a:'dv',off:-60,
   tasks:[
     'Предварительный список составлен в КАМИС.',
-    'Наличие и сохранность подтверждена хранителем коллекции.',
+    'Живопись. Наличие и сохранность подтверждена хранителем коллекции.',
+    'Костюмы. Наличие и сохранность подтверждена хранителем коллекции.',
+    'Фотографии. Наличие и сохранность подтверждена хранителем коллекции.',
+    'Документы. Наличие и сохранность подтверждена хранителем коллекции.',
     'Список согласован с заказчиком.'
   ]
 };
+const OLD_MERGED_TASKS=[
+  'Предварительный список составлен в КАМИС.',
+  'Наличие и сохранность подтверждена хранителем коллекции.',
+  'Список согласован с заказчиком.'
+];
 const STAGES_TEMPLATE=[
  {t:'Заявка и принципиальное согласие',a:'dv',off:-90,tasks:[
    'Получен запрос от партнёра: письмо, состав выставки, сроки',
@@ -530,11 +538,15 @@ function seed(){
   const p3={id:uid(),name:'Гербарий Севера',orgId:orgA.id,dv:addDaysISO(T,-12),open:addDaysISO(T,-9),ret:addDaysISO(T,66),stages:makeStages(),orgIds:[orgA.id],contactIds:[c1.id]};
   const done=(p,s,n)=>{for(let k=0;k<n;k++){const t=p.stages[s].tasks[k];if(t)t.done=true;}};
   const asg=(p,s,t,ex)=>{const task=p.stages[s].tasks[t];if(task)task.assigneeId=ex.id;};
-  done(p1,0,3); done(p1,1,3); done(p1,2,2); done(p1,3,1);
+  // p1: заявка готова, согласование почти готово (ждёт заказчика), договор в работе
+  done(p1,0,3); done(p1,1,5); done(p1,2,2); done(p1,3,1);
   asg(p1,1,1,e1); asg(p1,2,1,e3); asg(p1,3,1,e2); asg(p1,3,2,e2);
+  // p2: заявка готова, согласование в работе
   done(p2,0,3); done(p2,1,2);
   asg(p2,0,1,e3);
-  for(let s=0;s<7;s++) done(p3,s,3); done(p3,7,1);
+  // p3: уже выдано, контроль на выставке в работе
+  for(let s=0;s<7;s++) p3.stages[s].tasks.forEach(t=>{t.done=true;});
+  done(p3,7,1);
   asg(p3,1,1,e1); asg(p3,6,0,e2);
 
   const notes=[
@@ -548,25 +560,52 @@ function seed(){
 function normalize(d){
   return {projects:Array.isArray(d.projects)?d.projects:[],orgs:d.orgs||[],contacts:d.contacts||[],executors:d.executors||[],notes:d.notes||[]};
 }
-function migrateMergedStage(p){
+/* миграция 1: старые раздельные этапы 2 и 3 → объединённый этап с 6 задачами */
+function migrateOldTwoStages(p){
   const i=p.stages.findIndex(s=>s.t==='Согласование списка предметов');
   if(i<0)return false;
   const B=p.stages[i+1];
   if(!B||B.t!=='Проверка сохранности')return false;
   const A=p.stages[i];
   const src=(st,k)=>st.tasks[k]||{done:false,assigneeId:''};
+  const cond=src(B,0);
   const tasks=[
     {id:uid(),text:MERGED_STAGE.tasks[0],done:src(A,0).done,assigneeId:src(A,0).assigneeId||''},
-    {id:uid(),text:MERGED_STAGE.tasks[1],done:src(B,0).done,assigneeId:src(B,0).assigneeId||''},
-    {id:uid(),text:MERGED_STAGE.tasks[2],done:src(A,2).done,assigneeId:src(A,2).assigneeId||''}
+    {id:uid(),text:MERGED_STAGE.tasks[1],done:cond.done,assigneeId:cond.assigneeId||''},
+    {id:uid(),text:MERGED_STAGE.tasks[2],done:cond.done,assigneeId:cond.assigneeId||''},
+    {id:uid(),text:MERGED_STAGE.tasks[3],done:cond.done,assigneeId:cond.assigneeId||''},
+    {id:uid(),text:MERGED_STAGE.tasks[4],done:cond.done,assigneeId:cond.assigneeId||''},
+    {id:uid(),text:MERGED_STAGE.tasks[5],done:src(A,2).done,assigneeId:src(A,2).assigneeId||''}
   ];
   A.tasks.concat(B.tasks).forEach(t=>{if(t.custom)tasks.push(t);});
   p.stages.splice(i,2,{t:MERGED_STAGE.t,a:'dv',off:MERGED_STAGE.off,tasks});
   return true;
 }
+/* миграция 2: промежуточный объединённый этап из 3 задач → 6 задач по коллекциям */
+function migrateExpandMerged(p){
+  const s=p.stages.find(x=>x.t===MERGED_STAGE.t);
+  if(!s)return false;
+  const base=s.tasks.filter(t=>!t.custom);
+  if(base.length!==3)return false;
+  const cond=base[1];
+  const tasks=[
+    {id:uid(),text:MERGED_STAGE.tasks[0],done:base[0].done,assigneeId:base[0].assigneeId||''},
+    {id:uid(),text:MERGED_STAGE.tasks[1],done:cond.done,assigneeId:cond.assigneeId||''},
+    {id:uid(),text:MERGED_STAGE.tasks[2],done:cond.done,assigneeId:cond.assigneeId||''},
+    {id:uid(),text:MERGED_STAGE.tasks[3],done:cond.done,assigneeId:cond.assigneeId||''},
+    {id:uid(),text:MERGED_STAGE.tasks[4],done:cond.done,assigneeId:cond.assigneeId||''},
+    {id:uid(),text:MERGED_STAGE.tasks[5],done:base[2].done,assigneeId:base[2].assigneeId||''}
+  ];
+  s.tasks.filter(t=>t.custom).forEach(t=>tasks.push(t));
+  s.tasks=tasks;
+  return true;
+}
 function migrateAll(){
   let changed=false;
-  state.projects.forEach(p=>{if(migrateMergedStage(p))changed=true;});
+  state.projects.forEach(p=>{
+    if(migrateOldTwoStages(p))changed=true;
+    if(migrateExpandMerged(p))changed=true;
+  });
   if(changed)persist(false);
 }
 function persist(flash){
@@ -664,7 +703,7 @@ function vDashboard(){
     }
   }
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер музейных выдач · v1.8</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер музейных выдач · v1.9</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Проекты, чек-листы и дедлайны, которые считаются сами — от даты выдачи до возврата.</p></section>'
    +'<section class="stats rise" style="animation-delay:70ms">'
@@ -735,7 +774,7 @@ function taskRow(i,t){
    +'<span class="box">'+I.check+'</span><span class="txt">'+esc(t.text)+'</span></label>'
    +assignControl(i,t)
    +'<button class="iconbtn sm t-edit" title="Редактировать текст задачи" data-action="task-edit" data-stage="'+i+'" data-id="'+t.id+'">'+I.pen+'</button>'
-   +(t.custom?'<button class="iconbtn sm danger-h t-del" title="Удалить задачу" data-action="task-del" data-stage="'+i+'" data-id="'+t.id+'">'+I.x+'</button>':'')
+   +'<button class="iconbtn sm danger-h t-del" title="Удалить задачу" data-action="task-del" data-stage="'+i+'" data-id="'+t.id+'">'+I.x+'</button>'
    +'</li>';
 }
 function stageCard(p,s,i){
@@ -772,7 +811,7 @@ function stagesInner(p){
   return h;
 }
 function stagesTab(p){
-  return '<p class="hint rise">Дедлайны этапов рассчитываются автоматически от даты выдачи и возврата. Тексты этапов и задач можно менять (карандаш), а в выпадающем списке у задачи — указать исполнителя из справочника. Выполненные на 100% этапы опускаются вниз.</p>'
+  return '<p class="hint rise">Дедлайны этапов рассчитываются автоматически от даты выдачи и возврата. Тексты этапов и задач можно менять (карандаш), любую задачу можно удалить (✕), а в выпадающем списке — указать исполнителя из справочника. Выполненные на 100% этапы опускаются вниз.</p>'
    +'<div id="stagesWrap" class="rise" style="animation-delay:60ms">'+stagesInner(p)+'</div>';
 }
 function replaceStages(){
@@ -1195,7 +1234,6 @@ function saveExec(id){
   else state.executors.push(Object.assign({id:uid()},data));
   persist();closeModal();renderApp();toast('Сохранено');
 }
-/* -------- партнёр проекта -------- */
 function openPartnerModal(){
   const p=cur();if(!p)return;
   openModal('<h3>Партнёр проекта</h3>'
@@ -1267,7 +1305,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'1.8',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'1.9',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
