@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v1.7</title>
+<title>Такие дела — выдачи и проекты · v1.8</title>
 <meta name="description" content="Персональный трекер музейных выдач: проекты, этапы, автодедлайны, контакты, исполнители и заметки.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2v20M4.2 6.5l15.6 11M19.8 6.5L4.2 17.5' stroke='%23c14e24' stroke-width='2.6' stroke-linecap='round' fill='none'/></svg>">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/500.css" rel="stylesheet">
@@ -127,11 +127,15 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .pcard.is-done{opacity:.78}
 .pcard.is-done:hover{opacity:1}
 .pcard-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px}
-.orgchip{font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);
-  background:var(--surface2);border:1px solid var(--line-soft);padding:3px 9px;border-radius:999px;
-  max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.orgchip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;letter-spacing:.04em;
+  text-transform:uppercase;color:var(--ink2);background:var(--surface2);border:1px solid var(--line-soft);
+  padding:3px 9px;border-radius:999px;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.orgchip svg{width:12px;height:12px;flex:none}
 button.orgchip{cursor:pointer;transition:.15s}
 button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
+.orgchip.dashed{border-style:dashed;color:var(--mut)}
+.orgchip.dashed:hover{color:var(--blue);border-color:var(--blue)}
+.chip-caret{font-size:9px;opacity:.65;margin-left:2px}
 .pcard-title{font:700 21px/1.2 var(--display);margin:2px 0 10px;transition:color .2s}
 .pcard:hover .pcard-title{color:var(--accent)}
 .pcard-dv{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink2);margin-bottom:11px;flex-wrap:wrap}
@@ -368,12 +372,14 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
 .modal-hint{font-size:12.5px;color:var(--mut);background:var(--surface2);border:1px dashed var(--line);
   border-radius:8px;padding:9px 12px;margin-bottom:4px;line-height:1.5}
-.orgchecks{border:1px solid var(--line-soft);border-radius:10px;padding:10px;margin-bottom:12px;max-height:150px;overflow:auto}
-.orgchecks .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);margin-bottom:6px;font-weight:700}
-.checkline{display:flex;gap:8px;align-items:center;font-weight:500;font-size:14px;color:var(--ink);
-  padding:6px 8px;border-radius:8px;cursor:pointer;margin:0;flex-direction:row}
-.checkline:hover{background:var(--surface2)}
-.checkline input{width:16px;height:16px;accent-color:var(--accent);flex:none}
+.org-picker{display:flex;gap:8px;margin-bottom:9px}
+.org-picker select{flex:1}
+.org-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;min-height:22px;align-items:center}
+.org-sel-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);
+  border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:13px;font-weight:600;color:var(--ink2)}
+.org-sel-chip svg{width:12px;height:12px}
+.osc-x{background:none;border:none;cursor:pointer;color:var(--mut);display:inline-flex;padding:0;transition:color .15s}
+.osc-x:hover{color:var(--red)}
 .confirm-text{color:var(--ink2);line-height:1.55}
 @keyframes pop{from{opacity:0;transform:scale(.94) translateY(10px)}}
 @keyframes fade{from{opacity:0}}
@@ -406,7 +412,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач · версия 1.7 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач · версия 1.8 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -505,6 +511,7 @@ const makeStages=()=>STAGES_TEMPLATE.map(s=>({t:s.t,a:s.a,off:s.off,tasks:s.task
 const LS_KEY='takiedela_v15';
 let state=null;
 const ui={view:'dash',projectId:null,tab:'stages',openAttach:null,addingStage:null,editStage:null,editTask:null,noteColor:'sun',noteDraft:'',editNote:null,bookTab:'orgs'};
+let contactModalOrgs=[];
 const cur=()=>state.projects.find(p=>p.id===ui.projectId)||null;
 
 function seed(){
@@ -523,13 +530,10 @@ function seed(){
   const p3={id:uid(),name:'Гербарий Севера',orgId:orgA.id,dv:addDaysISO(T,-12),open:addDaysISO(T,-9),ret:addDaysISO(T,66),stages:makeStages(),orgIds:[orgA.id],contactIds:[c1.id]};
   const done=(p,s,n)=>{for(let k=0;k<n;k++){const t=p.stages[s].tasks[k];if(t)t.done=true;}};
   const asg=(p,s,t,ex)=>{const task=p.stages[s].tasks[t];if(task)task.assigneeId=ex.id;};
-  // p1: заявка и согласование готовы, договор в работе
   done(p1,0,3); done(p1,1,3); done(p1,2,2); done(p1,3,1);
   asg(p1,1,1,e1); asg(p1,2,1,e3); asg(p1,3,1,e2); asg(p1,3,2,e2);
-  // p2: заявка готова, согласование в работе
   done(p2,0,3); done(p2,1,2);
   asg(p2,0,1,e3);
-  // p3: уже выдано, контроль на выставке в работе
   for(let s=0;s<7;s++) done(p3,s,3); done(p3,7,1);
   asg(p3,1,1,e1); asg(p3,6,0,e2);
 
@@ -544,7 +548,6 @@ function seed(){
 function normalize(d){
   return {projects:Array.isArray(d.projects)?d.projects:[],orgs:d.orgs||[],contacts:d.contacts||[],executors:d.executors||[],notes:d.notes||[]};
 }
-/* миграция: объединение старых этапов 2 и 3 в один */
 function migrateMergedStage(p){
   const i=p.stages.findIndex(s=>s.t==='Согласование списка предметов');
   if(i<0)return false;
@@ -661,7 +664,7 @@ function vDashboard(){
     }
   }
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер музейных выдач · v1.7</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер музейных выдач · v1.8</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Проекты, чек-листы и дедлайны, которые считаются сами — от даты выдачи до возврата.</p></section>'
    +'<section class="stats rise" style="animation-delay:70ms">'
@@ -689,9 +692,11 @@ function vProject(){
   return '<div class="wrap">'
    +'<div class="proj-head rise">'
    +'<button class="btn ghost sm" data-action="back">'+I.back+' К проектам</button>'
-   +'<div class="title-line"><h2 class="proj-title" data-action="rename-start" title="Нажмите, чтобы переименовать">'+esc(p.name)+'<span class="pen">'+I.pen+'</span></h2>'
+   +'<div class="title-line"><h2 class="proj-title" id="projTitle" data-action="rename-start" title="Нажмите, чтобы переименовать">'+esc(p.name)+'<span class="pen">'+I.pen+'</span></h2>'
    +'<div class="title-side">'
-   +(org?'<button class="orgchip" data-action="org-edit" data-id="'+org.id+'" title="Изменить организацию">'+esc(org.name)+'</button>':'<span class="orgchip">партнёр не указан</span>')
+   +(org
+     ?'<button class="orgchip" data-action="partner-edit" title="Изменить партнёра проекта">'+esc(org.name)+'<span class="chip-caret">▾</span></button>'
+     :'<button class="orgchip dashed" data-action="partner-edit" title="Добавить партнёра проекта">'+I.plus+' партнёр</button>')
    +'<button class="iconbtn danger-h" data-action="delete-project" title="Удалить проект">'+I.trash+'</button></div></div>'
    +'<div class="dates-line">'
    +dateField('dv','Дата выдачи',p.dv)
@@ -1118,12 +1123,28 @@ function saveOrg(id){
   else state.orgs.push(Object.assign({id:uid()},data));
   persist();closeModal();renderApp();toast('Сохранено');
 }
+function renderModalOrgChips(){
+  const box=$('#m-orgchips');if(!box)return;
+  box.innerHTML=contactModalOrgs.length
+    ? contactModalOrgs.map(oid=>{
+        const o=state.orgs.find(x=>x.id===oid);if(!o)return '';
+        return '<span class="org-sel-chip">'+esc(o.name)+'<button type="button" class="osc-x" data-action="m-org-remove" data-id="'+oid+'" title="Убрать">'+I.x+'</button></span>';
+      }).join('')
+    : '<span class="empty">Организации не выбраны</span>';
+}
 function openContactModal(c){
+  contactModalOrgs=(c&&c.orgIds?c.orgIds.slice():[]).filter(id=>state.orgs.some(o=>o.id===id));
+  const pickerHtml=state.orgs.length
+    ? '<div class="org-picker"><select id="m-orgsel"><option value="">— выберите организацию —</option>'
+      +state.orgs.map(o=>'<option value="'+o.id+'">'+esc(o.name)+'</option>').join('')
+      +'</select><button class="btn ghost sm" id="m-orgadd" type="button">'+I.plus+' Добавить</button></div>'
+      +'<div id="m-orgchips" class="org-chips"></div>'
+    : '<p class="empty" style="margin-bottom:12px">Справочник организаций пуст — сначала добавьте организацию.</p>';
   openModal('<h3>'+(c?'Изменить контакт':'Новый контакт')+'</h3>'
    +'<label>ФИО *<input id="m-fio" maxlength="90" placeholder="Имя Фамилия"></label>'
    +'<label>Должность<input id="m-pos" maxlength="90" placeholder="Куратор, хранитель…"></label>'
-   +'<div class="orgchecks"><p class="lbl">Организации</p>'
-   +(state.orgs.map(o=>'<label class="checkline"><input type="checkbox" class="m-orgchk" value="'+o.id+'"> '+esc(o.name)+'</label>').join('')||'<p class="empty">Справочник организаций пуст</p>')+'</div>'
+   +'<label>Организации</label>'
+   +pickerHtml
    +'<div class="grid2"><label>Телефон<input id="m-phone" placeholder="+7 …"></label>'
    +'<label>E-mail<input id="m-email" placeholder="mail@…"></label></div>'
    +'<label>Заметка<textarea id="m-note" rows="2" placeholder="Например: главный контакт по договорам"></textarea></label>'
@@ -1132,15 +1153,21 @@ function openContactModal(c){
   if(c){
     $('#m-fio').value=c.name||'';$('#m-pos').value=c.position||'';
     $('#m-phone').value=c.phone||'';$('#m-email').value=c.email||'';$('#m-note').value=c.note||'';
-    (c.orgIds||[]).forEach(id=>{const cb=document.querySelector('.m-orgchk[value="'+id+'"]');if(cb)cb.checked=true;});
+  }
+  if(state.orgs.length){
+    renderModalOrgChips();
+    $('#m-orgadd').addEventListener('click',()=>{
+      const sel=$('#m-orgsel');const v=sel.value;
+      if(v&&!contactModalOrgs.includes(v)){contactModalOrgs.push(v);renderModalOrgChips();}
+      sel.value='';
+    });
   }
   $('#m-fio').focus();
 }
 function saveContact(id){
   const name=$('#m-fio').value.trim();
   if(!name){toast('Укажите ФИО','err');return;}
-  const orgIds=$$('.m-orgchk').filter(x=>x.checked).map(x=>x.value);
-  const data={name:name,position:$('#m-pos').value.trim(),orgIds:orgIds,phone:$('#m-phone').value.trim(),email:$('#m-email').value.trim(),note:$('#m-note').value.trim()};
+  const data={name:name,position:$('#m-pos').value.trim(),orgIds:contactModalOrgs.slice(),phone:$('#m-phone').value.trim(),email:$('#m-email').value.trim(),note:$('#m-note').value.trim()};
   if(id){const c=state.contacts.find(x=>x.id===id);if(c)Object.assign(c,data);}
   else state.contacts.push(Object.assign({id:uid()},data));
   persist();closeModal();renderApp();toast('Сохранено');
@@ -1167,6 +1194,42 @@ function saveExec(id){
   if(id){const x=state.executors.find(e=>e.id===id);if(x)Object.assign(x,data);}
   else state.executors.push(Object.assign({id:uid()},data));
   persist();closeModal();renderApp();toast('Сохранено');
+}
+/* -------- партнёр проекта -------- */
+function openPartnerModal(){
+  const p=cur();if(!p)return;
+  openModal('<h3>Партнёр проекта</h3>'
+   +'<label>Организация-партнёр<select id="pt-sel">'
+   +'<option value="">— Без партнёра —</option>'
+   +state.orgs.map(o=>'<option value="'+o.id+'"'+(p.orgId===o.id?' selected':'')+'>'+esc(o.name)+(o.city?' ('+esc(o.city)+')':'')+'</option>').join('')
+   +'<option value="__new">➕ Создать новую организацию…</option>'
+   +'</select></label>'
+   +'<div id="pt-new-wrap" style="display:none"><label>Название новой организации *<input id="pt-new-name" maxlength="90" placeholder="Например: Краеведческий музей"></label></div>'
+   +'<p class="modal-hint">Выбранная организация автоматически появится в списке организаций проекта на вкладке «Контакты».</p>'
+   +'<div class="modal-actions"><button class="btn ghost" data-action="modal-close">Отмена</button>'
+   +'<button class="btn primary" data-action="pt-save">Сохранить</button></div>');
+  $('#pt-sel').addEventListener('change',()=>{
+    $('#pt-new-wrap').style.display=$('#pt-sel').value==='__new'?'':'none';
+    if($('#pt-sel').value==='__new')$('#pt-new-name').focus();
+  });
+}
+function savePartner(){
+  const p=cur();if(!p)return;
+  const v=$('#pt-sel').value;
+  if(v==='__new'){
+    const name=$('#pt-new-name').value.trim();
+    if(!name){toast('Укажите название организации','err');return;}
+    let o=state.orgs.find(x=>x.name.toLowerCase()===name.toLowerCase());
+    if(!o){o={id:uid(),name:name,type:'Другое',city:'',phone:'',email:'',note:''};state.orgs.push(o);}
+    p.orgId=o.id;
+    if(!p.orgIds.includes(o.id))p.orgIds.push(o.id);
+  }else if(v===''){
+    p.orgId=null;
+  }else{
+    p.orgId=v;
+    if(!p.orgIds.includes(v))p.orgIds.push(v);
+  }
+  persist();closeModal();renderApp();toast('Партнёр проекта обновлён');
 }
 function delOrg(id){
   const o=state.orgs.find(x=>x.id===id);if(!o)return;
@@ -1204,7 +1267,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'1.7',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'1.8',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
@@ -1243,6 +1306,8 @@ function onClick(e){
     case 'back':ui.view='dash';renderApp();window.scrollTo(0,0);break;
     case 'rename-start':startRename();break;
     case 'delete-project':deleteProject();break;
+    case 'partner-edit':openPartnerModal();break;
+    case 'pt-save':savePartner();break;
     case 'tab':ui.tab=el.dataset.tab;ui.openAttach=null;ui.addingStage=null;ui.editStage=null;ui.editTask=null;refreshTab();break;
     case 'task-add':ui.addingStage=+el.dataset.stage;ui.editTask=null;replaceStages();focusTaskAdd();break;
     case 'task-add-cancel':ui.addingStage=null;replaceStages();break;
@@ -1281,6 +1346,7 @@ function onClick(e){
     case 'exec-new':openExecModal();break;
     case 'book-tab':ui.bookTab=el.dataset.tab;renderApp();break;
     case 'modal-close':closeModal();break;
+    case 'm-org-remove':{const idx=contactModalOrgs.indexOf(id);if(idx>-1)contactModalOrgs.splice(idx,1);renderModalOrgChips();break;}
     case 'np-create':createProject();break;
     case 'org-save':saveOrg(el.dataset.id);break;
     case 'contact-save':saveContact(el.dataset.id);break;
