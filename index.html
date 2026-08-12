@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v1.9</title>
+<title>Такие дела — выдачи и проекты · v2.1</title>
 <meta name="description" content="Персональный трекер музейных выдач: проекты, этапы, автодедлайны, контакты, исполнители и заметки.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2v20M4.2 6.5l15.6 11M19.8 6.5L4.2 17.5' stroke='%23c14e24' stroke-width='2.6' stroke-linecap='round' fill='none'/></svg>">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/500.css" rel="stylesheet">
@@ -412,7 +412,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач · версия 1.9 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач · версия 2.1 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -452,7 +452,7 @@ const I={
   user:svg('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>')
 };
 
-/* ================= шаблон этапов ================= */
+/* ================= шаблон этапов (v2.1) ================= */
 const MERGED_STAGE={
   t:'Согласование списка, сохранности и наличия предметов.',
   a:'dv',off:-60,
@@ -465,53 +465,32 @@ const MERGED_STAGE={
     'Список согласован с заказчиком.'
   ]
 };
-const OLD_MERGED_TASKS=[
-  'Предварительный список составлен в КАМИС.',
-  'Наличие и сохранность подтверждена хранителем коллекции.',
-  'Список согласован с заказчиком.'
-];
 const STAGES_TEMPLATE=[
  {t:'Заявка и принципиальное согласие',a:'dv',off:-90,tasks:[
    'Получен запрос от партнёра: письмо, состав выставки, сроки',
    'Проверены даты и площадка проведения',
    'Получено принципиальное согласие руководства']},
- {t:MERGED_STAGE.t,a:MERGED_STAGE.a,off:MERGED_STAGE.off,tasks:MERGED_STAGE.tasks.slice()},
+ {t:MERGED_STAGE.t,a:'dv',off:MERGED_STAGE.off,tasks:MERGED_STAGE.tasks.slice()},
  {t:'Договор и страхование',a:'dv',off:-45,tasks:[
-   'Подготовлен проект договора о временной передаче',
-   'Согласована страховая оценка «гвоздь в гвоздь»',
-   'Договор подписан, страховка оформлена']},
- {t:'Логистика и упаковка',a:'dv',off:-21,tasks:[
-   'Выбран перевозчик, согласован маршрут',
-   'Подготовлена упаковка и климат-контроль',
-   'Согласовано сопровождение груза курьером']},
- {t:'Документы на выдачу',a:'dv',off:-7,tasks:[
-   'Составлен акт выдачи с полным перечнем',
-   'Оформлены доверенности курьеру',
-   'Согласованы дата и время выдачи']},
+   'Страховая оценка утверждена ЭФЗК',
+   'Согласован маршрут / адреса / сроки перевозки.',
+   'Проект договора о выдаче согласован сторонами.',
+   'Получена копия страхового полиса.',
+   'Договор подписан сторонами.',
+   'Направлена заявка на сделку в Мин.Культ РФ.']},
  {t:'Выдача предметов',a:'dv',off:0,tasks:[
-   'Упаковка в присутствии комиссии',
-   'Акт выдачи подписан сторонами',
-   'Предметы переданы перевозчику']},
- {t:'Доставка и монтаж',a:'dv',off:3,tasks:[
-   'Курьер сопроводил груз до площадки',
-   'Распаковка и сверка по акту на месте',
-   'Монтаж завершён, витрины приняты']},
- {t:'Контроль на выставке',a:'open',off:14,tasks:[
-   'Куратор посетил выставку и осмотрел предметы',
-   'Проверка климата и освещённости в витринах',
-   'Получен промежуточный отчёт партнёра']},
- {t:'Демонтаж',a:'ret',off:-3,tasks:[
-   'Даты демонтажа согласованы с партнёром',
-   'Упаковка подготовлена курьером',
-   'Демонтаж выполнен, предметы сверены по акту']},
+   'Получено одобрение сделки от Мин.Культа РФ.',
+   'Подготовлена доверенность на сопровождающего / хранителя.',
+   'Подготовлены акты передачи.',
+   'Определён срок / место упаковки и погрузки.',
+   'Заказан пропуск на автотранспорт.',
+   'Акты подписаны. Предметы упакованы и загружены.']},
  {t:'Возврат предметов',a:'ret',off:0,tasks:[
-   'Груз доставлен обратно в музей',
-   'Распаковка в присутствии комиссии',
-   'Акт возврата подписан сторонами']},
- {t:'Итоговая проверка и закрытие',a:'ret',off:7,tasks:[
-   'Сверка состояния с актами сохранности',
-   'При необходимости — отчёт о повреждениях и претензия',
-   'Договор закрыт, документы переданы в архив']}
+   'Дата возврата согласована.',
+   'Пропуск на транспорт заказан.',
+   'Доверенность сопровождающего запрошена.',
+   'Предметы получены. Сохранность сверена. Акты подписаны.',
+   'Направлена заявка в Госкаталог на закрытие сделки.']}
 ];
 const makeStages=()=>STAGES_TEMPLATE.map(s=>({t:s.t,a:s.a,off:s.off,tasks:s.tasks.map(x=>({id:uid(),text:x,done:false,assigneeId:''}))}));
 
@@ -538,16 +517,16 @@ function seed(){
   const p3={id:uid(),name:'Гербарий Севера',orgId:orgA.id,dv:addDaysISO(T,-12),open:addDaysISO(T,-9),ret:addDaysISO(T,66),stages:makeStages(),orgIds:[orgA.id],contactIds:[c1.id]};
   const done=(p,s,n)=>{for(let k=0;k<n;k++){const t=p.stages[s].tasks[k];if(t)t.done=true;}};
   const asg=(p,s,t,ex)=>{const task=p.stages[s].tasks[t];if(task)task.assigneeId=ex.id;};
-  // p1: заявка готова, согласование почти готово (ждёт заказчика), договор в работе
-  done(p1,0,3); done(p1,1,5); done(p1,2,2); done(p1,3,1);
-  asg(p1,1,1,e1); asg(p1,2,1,e3); asg(p1,3,1,e2); asg(p1,3,2,e2);
+  // p1: заявка готова, согласование ждёт заказчика, договор в работе
+  done(p1,0,3); done(p1,1,5); done(p1,2,2);
+  asg(p1,1,1,e1); asg(p1,2,0,e3);
   // p2: заявка готова, согласование в работе
   done(p2,0,3); done(p2,1,2);
   asg(p2,0,1,e3);
-  // p3: уже выдано, контроль на выставке в работе
-  for(let s=0;s<7;s++) p3.stages[s].tasks.forEach(t=>{t.done=true;});
-  done(p3,7,1);
-  asg(p3,1,1,e1); asg(p3,6,0,e2);
+  // p3: уже выдано, возврат в работе
+  for(let s=0;s<4;s++) p3.stages[s].tasks.forEach(t=>{t.done=true;});
+  done(p3,4,1);
+  asg(p3,1,1,e1); asg(p3,3,5,e2);
 
   const notes=[
     {id:uid(),projectId:p1.id,text:'Ромашки просят витрину №4 — уточнить у Анны до подписания договора.',color:'sun',pinned:true,createdAt:addDaysISO(T,-3)},
@@ -560,7 +539,9 @@ function seed(){
 function normalize(d){
   return {projects:Array.isArray(d.projects)?d.projects:[],orgs:d.orgs||[],contacts:d.contacts||[],executors:d.executors||[],notes:d.notes||[]};
 }
-/* миграция 1: старые раздельные этапы 2 и 3 → объединённый этап с 6 задачами */
+
+/* ---- миграции старых данных ---- */
+/* 1) раздельные этапы «Согласование списка» + «Проверка сохранности» → объединённый */
 function migrateOldTwoStages(p){
   const i=p.stages.findIndex(s=>s.t==='Согласование списка предметов');
   if(i<0)return false;
@@ -581,7 +562,7 @@ function migrateOldTwoStages(p){
   p.stages.splice(i,2,{t:MERGED_STAGE.t,a:'dv',off:MERGED_STAGE.off,tasks});
   return true;
 }
-/* миграция 2: промежуточный объединённый этап из 3 задач → 6 задач по коллекциям */
+/* 2) объединённый этап из 3 задач → 6 задач по коллекциям */
 function migrateExpandMerged(p){
   const s=p.stages.find(x=>x.t===MERGED_STAGE.t);
   if(!s)return false;
@@ -600,11 +581,85 @@ function migrateExpandMerged(p){
   s.tasks=tasks;
   return true;
 }
+/* 3) перестройка под шаблон v2.1: старые этапы «Логистика», «Документы на выдачу»,
+      «Демонтаж», «Контроль на выставке», «Доставка и монтаж» поглощаются,
+      выполненные отметки и свои задачи переносятся в новые этапы */
+function migrateToV2(p){
+  const OLD_GONE=['Логистика и упаковка','Документы на выдачу','Демонтаж','Контроль на выставке','Доставка и монтаж'];
+  if(!p.stages.some(s=>OLD_GONE.includes(s.t)))return false;
+  const old={};
+  p.stages.forEach(s=>{old[s.t]=s;});
+  const src=(title,i)=>{const s=old[title];const t=s&&s.tasks[i];return t||{done:false,assigneeId:''};};
+  const cust=titles=>titles.reduce((a,t)=>{const s=old[t];if(s)s.tasks.forEach(x=>{if(x.custom)a.push(x);});return a;},[]);
+  const mk=(text,s)=>({id:uid(),text:text,done:!!s.done,assigneeId:s.assigneeId||''});
+  const EMPTY={done:false,assigneeId:''};
+  const CHANGED=['Договор и страхование','Выдача предметов','Возврат предметов'];
+
+  const stages=[];
+  STAGES_TEMPLATE.forEach(tpl=>{
+    if(old[tpl.t]&&!CHANGED.includes(tpl.t)){stages.push(old[tpl.t]);return;}
+    let tasks;
+    if(tpl.t==='Договор и страхование'){
+      tasks=[
+        mk('Страховая оценка утверждена ЭФЗК',src('Договор и страхование',1)),
+        mk('Согласован маршрут / адреса / сроки перевозки.',src('Логистика и упаковка',0)),
+        mk('Проект договора о выдаче согласован сторонами.',src('Договор и страхование',0)),
+        mk('Получена копия страхового полиса.',EMPTY),
+        mk('Договор подписан сторонами.',src('Договор и страхование',2)),
+        mk('Направлена заявка на сделку в Мин.Культ РФ.',EMPTY)
+      ].concat(cust(['Договор и страхование']));
+    }else if(tpl.t==='Выдача предметов'){
+      tasks=[
+        mk('Получено одобрение сделки от Мин.Культа РФ.',EMPTY),
+        mk('Подготовлена доверенность на сопровождающего / хранителя.',src('Документы на выдачу',1)),
+        mk('Подготовлены акты передачи.',src('Документы на выдачу',0)),
+        mk('Определён срок / место упаковки и погрузки.',EMPTY),
+        mk('Заказан пропуск на автотранспорт.',EMPTY),
+        mk('Акты подписаны. Предметы упакованы и загружены.',src('Выдача предметов',1))
+      ].concat(cust(['Логистика и упаковка','Документы на выдачу','Выдача предметов']));
+    }else if(tpl.t==='Возврат предметов'){
+      tasks=[
+        mk('Дата возврата согласована.',src('Демонтаж',0)),
+        mk('Пропуск на транспорт заказан.',EMPTY),
+        mk('Доверенность сопровождающего запрошена.',EMPTY),
+        mk('Предметы получены. Сохранность сверена. Акты подписаны.',src('Возврат предметов',2)),
+        mk('Направлена заявка в Госкаталог на закрытие сделки.',EMPTY)
+      ].concat(cust(['Демонтаж','Возврат предметов','Доставка и монтаж','Контроль на выставке','Экспонирование и возврат','Итоговая проверка и закрытие']));
+    }else{
+      tasks=tpl.tasks.map(x=>({id:uid(),text:x,done:false,assigneeId:''}));
+    }
+    stages.push({t:tpl.t,a:tpl.a,off:tpl.off,tasks});
+  });
+  p.stages=stages;
+  return true;
+}
+/* 4) удаление этапов «Доставка и монтаж», «Экспонирование и возврат», «Итоговая проверка и закрытие» */
+function migrateToV21(p){
+  const REMOVED=['Доставка и монтаж','Экспонирование и возврат','Итоговая проверка и закрытие'];
+  if(!p.stages.some(s=>REMOVED.includes(s.t)))return false;
+  const old={};
+  p.stages.forEach(s=>{old[s.t]=s;});
+  const customs=[];
+  REMOVED.forEach(t=>{const s=old[t];if(s)s.tasks.forEach(x=>{if(x.custom)customs.push(x);});});
+  const stages=[];
+  STAGES_TEMPLATE.forEach(tpl=>{
+    if(old[tpl.t]){stages.push(old[tpl.t]);}
+    else{stages.push({t:tpl.t,a:tpl.a,off:tpl.off,tasks:tpl.tasks.map(x=>({id:uid(),text:x,done:false,assigneeId:''}))});}
+  });
+  if(customs.length){
+    const ret=stages.find(s=>s.t==='Возврат предметов');
+    if(ret)ret.tasks=ret.tasks.concat(customs);
+  }
+  p.stages=stages;
+  return true;
+}
 function migrateAll(){
   let changed=false;
   state.projects.forEach(p=>{
     if(migrateOldTwoStages(p))changed=true;
     if(migrateExpandMerged(p))changed=true;
+    if(migrateToV2(p))changed=true;
+    if(migrateToV21(p))changed=true;
   });
   if(changed)persist(false);
 }
@@ -703,7 +758,7 @@ function vDashboard(){
     }
   }
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер музейных выдач · v1.9</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер музейных выдач · v2.1</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Проекты, чек-листы и дедлайны, которые считаются сами — от даты выдачи до возврата.</p></section>'
    +'<section class="stats rise" style="animation-delay:70ms">'
@@ -1305,7 +1360,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'1.9',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'2.1',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
