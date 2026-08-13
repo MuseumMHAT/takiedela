@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v2.2</title>
+<title>Такие дела — выдачи и проекты · v2.3</title>
 <meta name="description" content="Персональный трекер музейных выдач: проекты, этапы, автодедлайны, контакты, исполнители и заметки.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2v20M4.2 6.5l15.6 11M19.8 6.5L4.2 17.5' stroke='%23c14e24' stroke-width='2.6' stroke-linecap='round' fill='none'/></svg>">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/500.css" rel="stylesheet">
@@ -98,6 +98,30 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .rise{animation:rise .55s cubic-bezier(.2,.7,.3,1) both}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 
+/* ---------- приоритет ---------- */
+.prio{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:999px;font-size:10.5px;
+  font-weight:800;letter-spacing:.05em;text-transform:uppercase;border:1px solid transparent;cursor:pointer;
+  transition:.15s;white-space:nowrap;flex:none;line-height:1.4}
+.prio i{width:7px;height:7px;border-radius:50%;background:var(--pc);flex:none}
+.prio:hover{transform:translateY(-1px);box-shadow:0 3px 8px -3px rgba(39,34,25,.3)}
+.p-fire{background:var(--red-soft);color:var(--red);border-color:rgba(179,57,47,.28)}
+.p-fire i{animation:priopulse 1.5s infinite}
+@keyframes priopulse{0%,100%{box-shadow:0 0 0 0 rgba(179,57,47,.45)}50%{box-shadow:0 0 0 4px rgba(179,57,47,0)}}
+.p-important{background:var(--amber-soft);color:var(--amber);border-color:rgba(176,122,30,.32)}
+.p-normal{background:var(--blue-soft);color:var(--blue);border-color:rgba(65,98,142,.26)}
+.p-background{background:rgba(149,138,112,.15);color:#7c7260;border-color:rgba(149,138,112,.32)}
+.p-pause{background:rgba(39,34,25,.08);color:#5c5546;border-color:rgba(39,34,25,.22)}
+.prio-backdrop{position:fixed;inset:0;z-index:95}
+.prio-menu{position:fixed;z-index:96;background:var(--surface);border:1px solid var(--line);border-radius:11px;
+  box-shadow:0 16px 36px -12px rgba(39,34,25,.4);padding:5px;width:176px;animation:pop .18s cubic-bezier(.2,.9,.3,1.15)}
+.prio-menu-cap{font:800 10.5px var(--body);text-transform:uppercase;letter-spacing:.1em;color:var(--mut);padding:5px 10px 6px}
+.prio-item{display:flex;align-items:center;gap:8px;width:100%;padding:7px 10px;border:none;background:none;
+  border-radius:7px;font:600 13px var(--body);color:var(--ink2);cursor:pointer;text-align:left;transition:.12s}
+.prio-item i{width:8px;height:8px;border-radius:50%;background:var(--pc);flex:none}
+.prio-item:hover{background:var(--surface2);color:var(--ink)}
+.prio-item.active{background:var(--accent-soft);color:var(--accent)}
+.pm-check{margin-left:auto;font-weight:800}
+
 /* ---------- hero / dashboard ---------- */
 .hero{padding:34px 0 6px}
 .kicker{text-transform:uppercase;letter-spacing:.15em;font-size:11.5px;font-weight:700;color:var(--accent)}
@@ -128,10 +152,11 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .pcard:hover::before{opacity:1}
 .pcard.is-done{opacity:.78}
 .pcard.is-done:hover{opacity:1}
-.pcard-top{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:10px}
+.pcard-top{display:flex;justify-content:flex-end;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.pcard-top .orgchip{margin-right:auto}
 .orgchip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;letter-spacing:.04em;
   text-transform:uppercase;color:var(--ink2);background:var(--surface2);border:1px solid var(--line-soft);
-  padding:3px 9px;border-radius:999px;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  padding:3px 9px;border-radius:999px;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .orgchip svg{width:12px;height:12px;flex:none}
 button.orgchip{cursor:pointer;transition:.15s}
 button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
@@ -166,7 +191,7 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 .proj-title:hover .pen{opacity:1;color:var(--accent)}
 .rename-input{font:700 clamp(24px,3.4vw,34px) var(--display);border:none;border-bottom:2px solid var(--accent);
   background:transparent;outline:none;width:100%;padding:0 0 2px;color:var(--ink)}
-.title-side{display:flex;align-items:center;gap:8px}
+.title-side{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .dates-line{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-top:16px}
 .datefield{display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:var(--mut);font-weight:700;letter-spacing:.03em;text-transform:uppercase}
 .datefield input{padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;
@@ -413,7 +438,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач · версия 2.2 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач · версия 2.3 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -452,6 +477,51 @@ const I={
   pin:svg('<circle cx="12" cy="8" r="5"/><path d="M12 13v8"/>'),
   user:svg('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>')
 };
+
+/* ================= приоритеты ================= */
+const PRIO_LEVELS=[
+  {key:'fire',      label:'горит',   color:'#b3392f'},
+  {key:'important', label:'важное',  color:'#a9761c'},
+  {key:'normal',    label:'штатное', color:'#41628e'},
+  {key:'background',label:'фоновое', color:'#95896f'},
+  {key:'pause',     label:'пауза',   color:'#6b6355'}
+];
+const prioOf=p=>PRIO_LEVELS.find(l=>l.key===(p.priority||'normal'))||PRIO_LEVELS[2];
+function prioChipHtml(p){
+  const lv=prioOf(p);
+  return '<button class="prio p-'+lv.key+'" data-action="prio-edit" data-id="'+p.id+'" title="Важность: '+lv.label+' — нажмите, чтобы изменить">'
+   +'<i style="--pc:'+lv.color+'"></i>'+lv.label+'</button>';
+}
+let prioMenu=null;
+function closePrioMenu(){
+  if(prioMenu){prioMenu.menu.remove();prioMenu.back.remove();prioMenu=null;}
+}
+function openPrioMenu(p,anchor){
+  closePrioMenu();
+  const curKey=p.priority||'normal';
+  const menu=document.createElement('div');
+  menu.className='prio-menu';
+  menu.innerHTML='<p class="prio-menu-cap">Важность проекта</p>'
+   +PRIO_LEVELS.map(lv=>'<button class="prio-item'+(curKey===lv.key?' active':'')+'" data-prio="'+lv.key+'">'
+     +'<i style="--pc:'+lv.color+'"></i>'+lv.label+(curKey===lv.key?'<span class="pm-check">✓</span>':'')+'</button>').join('');
+  const back=document.createElement('div');
+  back.className='prio-backdrop';
+  back.addEventListener('click',closePrioMenu);
+  document.body.append(back,menu);
+  const r=anchor.getBoundingClientRect();
+  const mw=176,mh=menu.offsetHeight;
+  let x=r.left,y=r.bottom+6;
+  if(x+mw>window.innerWidth-8)x=Math.max(8,window.innerWidth-mw-8);
+  if(y+mh>window.innerHeight-8)y=Math.max(8,r.top-mh-6);
+  menu.style.left=x+'px';menu.style.top=y+'px';
+  menu.addEventListener('click',ev=>{
+    const b=ev.target.closest('[data-prio]');if(!b)return;
+    p.priority=b.dataset.prio;
+    persist();closePrioMenu();renderApp();
+    toast('Важность: '+prioOf(p).label);
+  });
+  prioMenu={menu,back};
+}
 
 /* ================= шаблон этапов (v2.1) ================= */
 const MERGED_STAGE={
@@ -513,18 +583,15 @@ function seed(){
   const e2={id:uid(),name:'Сергей Ковалевский',role:'Упаковщик · курьер',phone:'+7 905 118-72-40',email:'',note:'Работает с хрупкой керамикой и ботаникой'};
   const e3={id:uid(),name:'Ольга Ремез',role:'Договоры и страхование',phone:'',email:'o.remez@flowermuseum.ru',note:''};
 
-  const p1={id:uid(),name:'Выставка ромашек',orgId:orgA.id,dv:addDaysISO(T,38),open:addDaysISO(T,41),ret:addDaysISO(T,118),stages:makeStages(),orgIds:[orgA.id],contactIds:[c1.id,c2.id]};
-  const p2={id:uid(),name:'Фарфор XVIII века',orgId:orgB.id,dv:addDaysISO(T,104),open:addDaysISO(T,108),ret:addDaysISO(T,190),stages:makeStages(),orgIds:[orgB.id],contactIds:[c3.id]};
-  const p3={id:uid(),name:'Гербарий Севера',orgId:orgA.id,dv:addDaysISO(T,-12),open:addDaysISO(T,-9),ret:addDaysISO(T,66),stages:makeStages(),orgIds:[orgA.id],contactIds:[c1.id]};
+  const p1={id:uid(),name:'Выставка ромашек',priority:'important',orgId:orgA.id,dv:addDaysISO(T,38),open:addDaysISO(T,41),ret:addDaysISO(T,118),stages:makeStages(),orgIds:[orgA.id],contactIds:[c1.id,c2.id]};
+  const p2={id:uid(),name:'Фарфор XVIII века',priority:'normal',orgId:orgB.id,dv:addDaysISO(T,104),open:addDaysISO(T,108),ret:addDaysISO(T,190),stages:makeStages(),orgIds:[orgB.id],contactIds:[c3.id]};
+  const p3={id:uid(),name:'Гербарий Севера',priority:'background',orgId:orgA.id,dv:addDaysISO(T,-12),open:addDaysISO(T,-9),ret:addDaysISO(T,66),stages:makeStages(),orgIds:[orgA.id],contactIds:[c1.id]};
   const done=(p,s,n)=>{for(let k=0;k<n;k++){const t=p.stages[s].tasks[k];if(t)t.done=true;}};
   const asg=(p,s,t,ex)=>{const task=p.stages[s].tasks[t];if(task)task.assigneeId=ex.id;};
-  // p1: заявка готова, согласование ждёт заказчика, договор в работе
   done(p1,0,3); done(p1,1,5); done(p1,2,2);
   asg(p1,1,1,e1); asg(p1,2,0,e3);
-  // p2: заявка готова, согласование в работе
   done(p2,0,3); done(p2,1,2);
   asg(p2,0,1,e3);
-  // p3: уже выдано, возврат в работе
   for(let s=0;s<4;s++) p3.stages[s].tasks.forEach(t=>{t.done=true;});
   done(p3,4,1);
   asg(p3,1,1,e1); asg(p3,3,5,e2);
@@ -542,7 +609,6 @@ function normalize(d){
 }
 
 /* ---- миграции старых данных ---- */
-/* 1) раздельные этапы «Согласование списка» + «Проверка сохранности» → объединённый */
 function migrateOldTwoStages(p){
   const i=p.stages.findIndex(s=>s.t==='Согласование списка предметов');
   if(i<0)return false;
@@ -563,7 +629,6 @@ function migrateOldTwoStages(p){
   p.stages.splice(i,2,{t:MERGED_STAGE.t,a:'dv',off:MERGED_STAGE.off,tasks});
   return true;
 }
-/* 2) объединённый этап из 3 задач → 6 задач по коллекциям */
 function migrateExpandMerged(p){
   const s=p.stages.find(x=>x.t===MERGED_STAGE.t);
   if(!s)return false;
@@ -582,9 +647,6 @@ function migrateExpandMerged(p){
   s.tasks=tasks;
   return true;
 }
-/* 3) перестройка под шаблон v2.1: старые этапы «Логистика», «Документы на выдачу»,
-      «Демонтаж», «Контроль на выставке», «Доставка и монтаж» поглощаются,
-      выполненные отметки и свои задачи переносятся в новые этапы */
 function migrateToV2(p){
   const OLD_GONE=['Логистика и упаковка','Документы на выдачу','Демонтаж','Контроль на выставке','Доставка и монтаж'];
   if(!p.stages.some(s=>OLD_GONE.includes(s.t)))return false;
@@ -634,7 +696,6 @@ function migrateToV2(p){
   p.stages=stages;
   return true;
 }
-/* 4) удаление этапов «Доставка и монтаж», «Экспонирование и возврат», «Итоговая проверка и закрытие» */
 function migrateToV21(p){
   const REMOVED=['Доставка и монтаж','Экспонирование и возврат','Итоговая проверка и закрытие'];
   if(!p.stages.some(s=>REMOVED.includes(s.t)))return false;
@@ -737,6 +798,7 @@ function projectCard(p,i){
   const over=p.stages.reduce((a,s)=>a+(stageInfo(p,s).status==='overdue'?1:0),0);
   return '<article class="pcard rise'+(ph.key==='done'?' is-done':'')+'" style="animation-delay:'+Math.min(i*70,420)+'ms" data-action="open-project" data-id="'+p.id+'">'
    +'<div class="pcard-top">'+(org?'<span class="orgchip">'+esc(org.name)+'</span>':'<span class="orgchip">без партнёра</span>')
+   +prioChipHtml(p)
    +'<span class="chip '+ph.cls+'">'+ph.label+'</span></div>'
    +'<h3 class="pcard-title">'+esc(p.name)+'</h3>'
    +'<div class="pcard-dv">'+I.cal+'<span>выдача '+fmtLong(p.dv)+'</span><b class="cd">'+countdownText(p)+'</b></div>'
@@ -759,7 +821,7 @@ function vDashboard(){
     }
   }
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер музейных выдач · v2.2</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер музейных выдач · v2.3</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Проекты, чек-листы и дедлайны, которые считаются сами — от даты выдачи до возврата.</p></section>'
    +'<section class="stats rise" style="animation-delay:70ms">'
@@ -789,6 +851,7 @@ function vProject(){
    +'<button class="btn ghost sm" data-action="back">'+I.back+' К проектам</button>'
    +'<div class="title-line"><h2 class="proj-title" id="projTitle" data-action="rename-start" title="Нажмите, чтобы переименовать">'+esc(p.name)+'<span class="pen">'+I.pen+'</span></h2>'
    +'<div class="title-side">'
+   +prioChipHtml(p)
    +(org
      ?'<button class="orgchip" data-action="partner-edit" title="Изменить партнёра проекта">'+esc(org.name)+'<span class="chip-caret">▾</span></button>'
      :'<button class="orgchip dashed" data-action="partner-edit" title="Добавить партнёра проекта">'+I.plus+' партнёр</button>')
@@ -1129,6 +1192,7 @@ function vBook(){
 
 /* ================= рендер ================= */
 function renderApp(){
+  closePrioMenu();
   const app=$('#app');
   if(ui.view==='project')app.innerHTML=vProject();
   else if(ui.view==='book')app.innerHTML=vBook();
@@ -1187,7 +1251,7 @@ function createProject(){
     if(!o){o={id:uid(),name:orgName,type:'Другое',city:'',phone:'',email:'',note:''};state.orgs.push(o);}
     orgId=o.id;
   }
-  const p={id:uid(),name:name,orgId:orgId,dv:dv,open:$('#np-open').value||'',ret:$('#np-ret').value||'',stages:makeStages(),orgIds:orgId?[orgId]:[],contactIds:[]};
+  const p={id:uid(),name:name,priority:'normal',orgId:orgId,dv:dv,open:$('#np-open').value||'',ret:$('#np-ret').value||'',stages:makeStages(),orgIds:orgId?[orgId]:[],contactIds:[]};
   state.projects.unshift(p);persist();closeModal();
   ui.view='project';ui.projectId=p.id;ui.tab='stages';ui.openAttach=null;
   renderApp();window.scrollTo(0,0);toast('Проект создан — дедлайны рассчитаны');
@@ -1361,7 +1425,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'2.2',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'2.3',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
@@ -1400,6 +1464,7 @@ function onClick(e){
     case 'back':ui.view='dash';renderApp();window.scrollTo(0,0);break;
     case 'rename-start':startRename();break;
     case 'delete-project':deleteProject();break;
+    case 'prio-edit':{const pr=state.projects.find(x=>x.id===id);if(pr)openPrioMenu(pr,el);break;}
     case 'partner-edit':openPartnerModal();break;
     case 'pt-save':savePartner();break;
     case 'tab':ui.tab=el.dataset.tab;ui.openAttach=null;ui.addingStage=null;ui.editStage=null;ui.editTask=null;refreshTab();break;
@@ -1496,7 +1561,10 @@ function onChange(e){
 }
 function onKey(e){
   if(e.target&&e.target.id==='noteText'&&e.key==='Enter'&&!e.shiftKey){e.preventDefault();addNote();}
-  if(e.key==='Escape'&&$('#modalRoot').firstChild)closeModal();
+  if(e.key==='Escape'){
+    if(prioMenu){closePrioMenu();return;}
+    if($('#modalRoot').firstChild)closeModal();
+  }
 }
 
 /* ================= шапка и старт ================= */
