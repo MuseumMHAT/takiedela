@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v2.7</title>
+<title>Такие дела — выдачи и проекты · v2.8</title>
 <meta name="description" content="Персональный трекер музейных выдач и договоров: проекты, этапы, автодедлайны, контакты, исполнители и заметки.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2v20M4.2 6.5l15.6 11M19.8 6.5L4.2 17.5' stroke='%23c14e24' stroke-width='2.6' stroke-linecap='round' fill='none'/></svg>">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/500.css" rel="stylesheet">
@@ -338,8 +338,9 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 /* ---------- contacts ---------- */
 .contact-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .panel{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);padding:16px;box-shadow:var(--shadow)}
-.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap}
 .panel-head h3{font:700 18px var(--display)}
+.panel-head .row-gap{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .link-row{display:flex;justify-content:space-between;gap:10px;padding:10px 12px;border:1px dashed var(--line);
   border-radius:10px;margin-bottom:8px;background:var(--surface2)}
 .lr-main{min-width:0}
@@ -466,7 +467,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач и договоров · версия 2.7 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач и договоров · версия 2.8 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -653,7 +654,7 @@ const LS_KEY='takiedela_v15';
 const LS_SORT='takiedela_sortprio';
 const LS_DIRFILTER='takiedela_dirfilter';
 let state=null;
-const ui={view:'dash',projectId:null,tab:'stages',openAttach:null,addingStage:null,editStage:null,editTask:null,noteColor:'sun',noteDraft:'',editNote:null,bookTab:'orgs',sortByPrio:false,dirFilter:'all'};
+const ui={view:'dash',projectId:null,tab:'stages',openAttach:null,addingStage:null,editStage:null,editTask:null,noteColor:'sun',noteDraft:'',editNote:null,bookTab:'orgs',sortByPrio:false,dirFilter:'all',quickContact:false};
 let contactModalOrgs=[];
 let npDir='vydacha';
 const cur=()=>state.projects.find(p=>p.id===ui.projectId)||null;
@@ -925,7 +926,7 @@ function vDashboard(){
   }
   const filterNext=DIR_FILTER_LABEL[DIR_CYCLE[(DIR_CYCLE.indexOf(ui.dirFilter)+1)%DIR_CYCLE.length]];
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v2.7</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v2.8</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Выдачи и договоры: чек-листы и дедлайны, которые считаются сами — от ключевой даты проекта.</p></section>'
    +'<section class="stats rise" style="animation-delay:70ms">'
@@ -1214,7 +1215,10 @@ function contactsTab(p){
    +(po.length?po.map(orgRow).join(''):'<p class="empty">Организации пока не привязаны.</p>')
    +(ui.openAttach==='org'?attachPanel('org',p):'')+'</section>'
    +'<section class="panel"><div class="panel-head"><h3>'+(dog?'Контакты':'Контакты проекта')+'</h3>'
-   +'<button class="btn ghost sm" data-action="attach-open" data-kind="contact">'+(ui.openAttach==='contact'?'Скрыть список':I.plus+' Добавить')+'</button></div>'
+   +'<div class="row-gap">'
+   +'<button class="btn ghost sm" data-action="contact-quick-new" title="Создать новый контакт и добавить его в проект">'+I.plus+' Новый контакт</button>'
+   +'<button class="btn ghost sm" data-action="attach-open" data-kind="contact">'+(ui.openAttach==='contact'?'Скрыть список':I.plus+' Привязать')+'</button>'
+   +'</div></div>'
    +(pc.length?pc.map(contactRow).join(''):'<p class="empty">Контакты пока не привязаны.</p>')
    +(ui.openAttach==='contact'?attachPanel('contact',p):'')+'</section>'
    +'</div><p class="hint">База исполнителей для задач — в разделе <button class="linkbtn" data-action="goto-executors">Справочник → Исполнители</button></p>';
@@ -1434,7 +1438,9 @@ function openContactModal(c){
       +'</select><button class="btn ghost sm" id="m-orgadd" type="button">'+I.plus+' Добавить</button></div>'
       +'<div id="m-orgchips" class="org-chips"></div>'
     : '<p class="empty" style="margin-bottom:12px">Справочник организаций пуст — сначала добавьте организацию.</p>';
+  const hint=ui.quickContact?'<p class="modal-hint">После сохранения контакт будет автоматически добавлен в текущий проект.</p>':'';
   openModal('<h3>'+(c?'Изменить контакт':'Новый контакт')+'</h3>'
+   +hint
    +'<label>ФИО *<input id="m-fio" maxlength="90" placeholder="Имя Фамилия"></label>'
    +'<label>Должность<input id="m-pos" maxlength="90" placeholder="Куратор, хранитель…"></label>'
    +'<label>Организации</label>'
@@ -1462,9 +1468,29 @@ function saveContact(id){
   const name=$('#m-fio').value.trim();
   if(!name){toast('Укажите ФИО','err');return;}
   const data={name:name,position:$('#m-pos').value.trim(),orgIds:contactModalOrgs.slice(),phone:$('#m-phone').value.trim(),email:$('#m-email').value.trim(),note:$('#m-note').value.trim()};
-  if(id){const c=state.contacts.find(x=>x.id===id);if(c)Object.assign(c,data);}
-  else state.contacts.push(Object.assign({id:uid()},data));
-  persist();closeModal();renderApp();toast('Сохранено');
+  let savedId=id;
+  if(id){
+    const c=state.contacts.find(x=>x.id===id);
+    if(c)Object.assign(c,data);
+  }else{
+    savedId=uid();
+    state.contacts.push(Object.assign({id:savedId},data));
+  }
+  const quick=!id&&ui.quickContact;
+  ui.quickContact=false;
+  persist();closeModal();
+  if(quick){
+    const p=cur();
+    if(p&&ui.view==='project'){
+      if(!p.contactIds.includes(savedId))p.contactIds.push(savedId);
+      ui.openAttach='contact';
+      persist();
+      renderApp();
+      toast('Контакт создан и добавлен в проект');
+      return;
+    }
+  }
+  renderApp();toast('Сохранено');
 }
 function openExecModal(x){
   openModal('<h3>'+(x?'Изменить исполнителя':'Новый исполнитель')+'</h3>'
@@ -1560,7 +1586,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'2.7',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'2.8',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
@@ -1642,16 +1668,17 @@ function onClick(e){
       const idx=arr.indexOf(id);if(idx>-1)arr.splice(idx,1);
       persist();refreshTab();break;
     }
+    case 'contact-quick-new':ui.quickContact=true;openContactModal();break;
     case 'goto-book':ui.view='book';ui.bookTab='orgs';renderApp();window.scrollTo(0,0);break;
     case 'goto-executors':ui.view='book';ui.bookTab='execs';renderApp();window.scrollTo(0,0);break;
     case 'org-edit':{const o=state.orgs.find(x=>x.id===id);if(o)openOrgModal(o);break;}
-    case 'contact-edit':{const c=state.contacts.find(x=>x.id===id);if(c)openContactModal(c);break;}
+    case 'contact-edit':{ui.quickContact=false;const c=state.contacts.find(x=>x.id===id);if(c)openContactModal(c);break;}
     case 'exec-edit':{const x=state.executors.find(e=>e.id===id);if(x)openExecModal(x);break;}
     case 'org-del':delOrg(id);break;
     case 'contact-del':delContact(id);break;
     case 'exec-del':delExec(id);break;
     case 'org-new':openOrgModal();break;
-    case 'contact-new':openContactModal();break;
+    case 'contact-new':ui.quickContact=false;openContactModal();break;
     case 'exec-new':openExecModal();break;
     case 'book-tab':ui.bookTab=el.dataset.tab;renderApp();break;
     case 'modal-close':closeModal();break;
