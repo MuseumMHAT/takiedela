@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v2.5</title>
+<title>Такие дела — выдачи и проекты · v2.6</title>
 <meta name="description" content="Персональный трекер музейных выдач и договоров: проекты, этапы, автодедлайны, контакты, исполнители и заметки.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2v20M4.2 6.5l15.6 11M19.8 6.5L4.2 17.5' stroke='%23c14e24' stroke-width='2.6' stroke-linecap='round' fill='none'/></svg>">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/500.css" rel="stylesheet">
@@ -94,8 +94,8 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .c-exec{background:var(--blue-soft);color:var(--blue)}
 .dirchip{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:800;letter-spacing:.06em;
   text-transform:uppercase;padding:3px 8px;border-radius:6px;white-space:nowrap;flex:none}
-.d-vyd{background:var(--accent-soft);color:var(--accent)}
-.d-dog{background:var(--blue-soft);color:var(--blue)}
+.d-vyd{background:var(--green-soft);color:var(--green)}
+.d-dog{background:var(--accent-soft);color:var(--accent)}
 .hint{color:var(--mut);font-size:13px;margin:14px 2px;line-height:1.5}
 .empty{color:var(--mut);font-size:13.5px;padding:6px 0}
 .dim2{color:var(--mut)}
@@ -161,13 +161,17 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
   background:linear-gradient(90deg,var(--accent),#d97a3f);opacity:0;transition:.25s}
 .pcard:hover{transform:translateY(-4px);box-shadow:0 18px 34px -16px rgba(39,34,25,.3)}
 .pcard:hover::before{opacity:1}
+.pcard.pc-vyd{background:#edf4ea;border-color:rgba(62,125,90,.22)}
+.pcard.pc-vyd::before{background:linear-gradient(90deg,var(--green),#6ea583)}
+.pcard.pc-dog{background:#fcefe1;border-color:rgba(193,78,36,.22)}
+.pcard.pc-dog::before{background:linear-gradient(90deg,var(--accent),#e0854f)}
 .pcard.is-done{opacity:.78}
 .pcard.is-done:hover{opacity:1}
 .pcard-top{display:flex;justify-content:flex-end;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
 .pcard-left{margin-right:auto;display:inline-flex;gap:6px;align-items:center;min-width:0;max-width:62%}
 .pcard-left .orgchip{max-width:170px}
 .orgchip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;letter-spacing:.04em;
-  text-transform:uppercase;color:var(--ink2);background:var(--surface2);border:1px solid var(--line-soft);
+  text-transform:uppercase;color:var(--ink2);background:rgba(255,253,246,.75);border:1px solid var(--line-soft);
   padding:3px 9px;border-radius:999px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .orgchip svg{width:12px;height:12px;flex:none}
 button.orgchip{cursor:pointer;transition:.15s}
@@ -180,7 +184,7 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 .pcard-dv{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink2);margin-bottom:11px;flex-wrap:wrap}
 .pcard-dv svg{color:var(--mut);flex:none}
 .pcard-dv .cd{margin-left:auto;color:var(--accent);font-weight:700;white-space:nowrap}
-.pbar{height:7px;background:var(--line-soft);border-radius:99px;overflow:hidden}
+.pbar{height:7px;background:rgba(39,34,25,.1);border-radius:99px;overflow:hidden}
 .pbar i{display:block;height:100%;border-radius:99px;transition:width .8s cubic-bezier(.2,.7,.3,1)}
 .pbar i.f-prep{background:linear-gradient(90deg,var(--accent),#d97a3f)}
 .pbar i.f-out{background:var(--green)}
@@ -461,7 +465,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач и договоров · версия 2.5 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач и договоров · версия 2.6 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -880,7 +884,7 @@ function projectCard(p,i){
   const st=projStats(p),ph=projPhase(p),org=state.orgs.find(o=>o.id===p.orgId);
   const over=p.stages.reduce((a,s)=>a+(stageInfo(p,s).status==='overdue'?1:0),0);
   const dog=isDog(p);
-  return '<article class="pcard rise'+(ph.key==='done'?' is-done':'')+'" style="animation-delay:'+Math.min(i*70,420)+'ms" data-action="open-project" data-id="'+p.id+'">'
+  return '<article class="pcard rise '+(dog?'pc-dog':'pc-vyd')+(ph.key==='done'?' is-done':'')+'" style="animation-delay:'+Math.min(i*70,420)+'ms" data-action="open-project" data-id="'+p.id+'">'
    +'<div class="pcard-top"><span class="pcard-left">'+dirChipHtml(p)
    +(org?'<span class="orgchip">'+esc(org.name)+'</span>':'<span class="orgchip">без партнёра</span>')+'</span>'
    +prioChipHtml(p)
@@ -907,7 +911,7 @@ function vDashboard(){
     }
   }
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v2.5</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v2.6</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Выдачи и договоры: чек-листы и дедлайны, которые считаются сами — от ключевой даты проекта.</p></section>'
    +'<section class="stats rise" style="animation-delay:70ms">'
@@ -1540,7 +1544,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'2.5',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'2.6',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
