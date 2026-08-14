@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v2.4</title>
-<meta name="description" content="Персональный трекер музейных выдач: проекты, этапы, автодедлайны, контакты, исполнители и заметки.">
+<title>Такие дела — выдачи и проекты · v2.5</title>
+<meta name="description" content="Персональный трекер музейных выдач и договоров: проекты, этапы, автодедлайны, контакты, исполнители и заметки.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2v20M4.2 6.5l15.6 11M19.8 6.5L4.2 17.5' stroke='%23c14e24' stroke-width='2.6' stroke-linecap='round' fill='none'/></svg>">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/500.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/700.css" rel="stylesheet">
@@ -92,6 +92,10 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .c-muted{background:var(--line-soft);color:var(--ink2)}
 .c-type{background:var(--surface2);color:var(--ink2);border:1px solid var(--line-soft)}
 .c-exec{background:var(--blue-soft);color:var(--blue)}
+.dirchip{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:800;letter-spacing:.06em;
+  text-transform:uppercase;padding:3px 8px;border-radius:6px;white-space:nowrap;flex:none}
+.d-vyd{background:var(--accent-soft);color:var(--accent)}
+.d-dog{background:var(--blue-soft);color:var(--blue)}
 .hint{color:var(--mut);font-size:13px;margin:14px 2px;line-height:1.5}
 .empty{color:var(--mut);font-size:13.5px;padding:6px 0}
 .dim2{color:var(--mut)}
@@ -160,10 +164,11 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .pcard.is-done{opacity:.78}
 .pcard.is-done:hover{opacity:1}
 .pcard-top{display:flex;justify-content:flex-end;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
-.pcard-top .orgchip{margin-right:auto}
+.pcard-left{margin-right:auto;display:inline-flex;gap:6px;align-items:center;min-width:0;max-width:62%}
+.pcard-left .orgchip{max-width:170px}
 .orgchip{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;letter-spacing:.04em;
   text-transform:uppercase;color:var(--ink2);background:var(--surface2);border:1px solid var(--line-soft);
-  padding:3px 9px;border-radius:999px;max-width:55%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  padding:3px 9px;border-radius:999px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .orgchip svg{width:12px;height:12px;flex:none}
 button.orgchip{cursor:pointer;transition:.15s}
 button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
@@ -211,6 +216,7 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 .cd-banner.out{background:var(--green-soft);color:var(--green)}
 .cd-banner.today{background:var(--amber-soft);color:var(--amber)}
 .cd-banner.ret{background:var(--line-soft);color:var(--ink2)}
+.cd-banner.over{background:var(--red-soft);color:var(--red)}
 .proj-progress{display:flex;align-items:center;gap:14px;margin-top:16px}
 .ptrack{flex:1;height:9px;background:var(--line-soft);border-radius:99px;overflow:hidden}
 .ptrack i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#d97a3f);
@@ -284,6 +290,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 
 /* ---------- timeline ---------- */
 .tl-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.tl-cards.one{grid-template-columns:1fr}
 .kd{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);padding:13px 16px;box-shadow:var(--shadow)}
 .kd span{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--mut)}
 .kd b{display:block;font:700 20px var(--display);margin:4px 0 2px}
@@ -405,7 +412,15 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
 .modal-hint{font-size:12.5px;color:var(--mut);background:var(--surface2);border:1px dashed var(--line);
-  border-radius:8px;padding:9px 12px;margin-bottom:4px;line-height:1.5}
+  border-radius:8px;padding:9px 12px;margin:4px 0;line-height:1.5}
+.dir-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.dir-opt{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;cursor:pointer;
+  text-align:left;transition:.15s;display:flex;flex-direction:column;gap:3px}
+.dir-opt b{font:700 15px var(--body);color:var(--ink)}
+.dir-opt span{font-size:12px;color:var(--mut)}
+.dir-opt:hover{border-color:var(--accent)}
+.dir-opt.on{border-color:var(--accent);background:var(--accent-soft)}
+.dir-opt.on b{color:var(--accent)}
 .org-picker{display:flex;gap:8px;margin-bottom:9px}
 .org-picker select{flex:1}
 .org-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;min-height:22px;align-items:center}
@@ -438,6 +453,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
   .dates-line{flex-direction:column;align-items:stretch}
   .cd-banner{margin-left:0;justify-content:center}
   .grid3{grid-template-columns:1fr}
+  .dir-picker{grid-template-columns:1fr}
   .stage{grid-template-columns:38px 1fr;padding:14px}
 }
 </style>
@@ -445,7 +461,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач · версия 2.4 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач и договоров · версия 2.5 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -540,7 +556,17 @@ function openPrioMenu(p,anchor){
   prioMenu={menu,back};
 }
 
-/* ================= шаблон этапов (v2.1) ================= */
+/* ================= направления и шаблоны этапов ================= */
+const DIR_META={
+  vydacha:{label:'Выдача',sub:'выдача предметов на выставку',dateLabel:'Дата выдачи',word:'выдачи'},
+  dogovory:{label:'Договоры',sub:'цифровые копии предметов',dateLabel:'Срок предоставления',word:'срока'}
+};
+const isDog=p=>(p.direction||'vydacha')==='dogovory';
+function dirChipHtml(p){
+  const dog=isDog(p);
+  return '<span class="dirchip '+(dog?'d-dog':'d-vyd')+'" title="Направление проекта">'+(dog?'Договоры':'Выдача')+'</span>';
+}
+
 const MERGED_STAGE={
   t:'Согласование списка, сохранности и наличия предметов.',
   a:'dv',off:-60,
@@ -553,7 +579,7 @@ const MERGED_STAGE={
     'Список согласован с заказчиком.'
   ]
 };
-const STAGES_TEMPLATE=[
+const STAGES_VYDACHA=[
  {t:'Заявка и принципиальное согласие',a:'dv',off:-90,tasks:[
    'Получен запрос от партнёра: письмо, состав выставки, сроки',
    'Проверены даты и площадка проведения',
@@ -580,7 +606,33 @@ const STAGES_TEMPLATE=[
    'Предметы получены. Сохранность сверена. Акты подписаны.',
    'Направлена заявка в Госкаталог на закрытие сделки.']}
 ];
-const makeStages=()=>STAGES_TEMPLATE.map(s=>({t:s.t,a:s.a,off:s.off,tasks:s.tasks.map(x=>({id:uid(),text:x,done:false,assigneeId:''}))}));
+const STAGES_DOGOVORY=[
+ {t:'Запрос на предоставление цифровых копий музейных предметов',a:'dv',off:-30,tasks:[
+   'Организация контрагент',
+   'Цель проекта / название',
+   'Контактное лицо',
+   'Список предметов',
+   'Сроки предоставления']},
+ {t:'Ответ на запрос',a:'dv',off:-21,tasks:[
+   'Предварительный список в КАМИС',
+   'Направление условий сотрудничества по договору',
+   'Согласование списка предметов',
+   'Направление проекта договора на согласование']},
+ {t:'Подготовка материалов',a:'dv',off:-10,tasks:[
+   'Сканирование материалов в высоком разрешении',
+   'Заполнение договора',
+   'Сбор сканированных материалов на диск',
+   'Согласование договора с контрагентом']},
+ {t:'Оплата по договору',a:'dv',off:0,tasks:[
+   'Согласование и подписание договора в 1С',
+   'Подписание договора (ЭДО или бумага)',
+   'Открытие ссылки на цифровые копии',
+   'Направление счёта на оплату и акта',
+   'Подписание Акта и закрытие договора']}
+];
+const TEMPLATES={vydacha:STAGES_VYDACHA,dogovory:STAGES_DOGOVORY};
+const STAGES_TEMPLATE=STAGES_VYDACHA; /* используется старыми миграциями */
+const makeStages=dir=>(TEMPLATES[dir]||STAGES_VYDACHA).map(s=>({t:s.t,a:s.a,off:s.off,tasks:s.tasks.map(x=>({id:uid(),text:x,done:false,assigneeId:''}))}));
 
 /* ================= state ================= */
 const LS_KEY='takiedela_v15';
@@ -588,6 +640,7 @@ const LS_SORT='takiedela_sortprio';
 let state=null;
 const ui={view:'dash',projectId:null,tab:'stages',openAttach:null,addingStage:null,editStage:null,editTask:null,noteColor:'sun',noteDraft:'',editNote:null,bookTab:'orgs',sortByPrio:false};
 let contactModalOrgs=[];
+let npDir='vydacha';
 const cur=()=>state.projects.find(p=>p.id===ui.projectId)||null;
 
 function seed(){
@@ -601,9 +654,10 @@ function seed(){
   const e2={id:uid(),name:'Сергей Ковалевский',role:'Упаковщик · курьер',phone:'+7 905 118-72-40',email:'',note:'Работает с хрупкой керамикой и ботаникой'};
   const e3={id:uid(),name:'Ольга Ремез',role:'Договоры и страхование',phone:'',email:'o.remez@flowermuseum.ru',note:''};
 
-  const p1={id:uid(),name:'Выставка ромашек',priority:'important',orgId:orgA.id,dv:addDaysISO(T,38),open:addDaysISO(T,41),ret:addDaysISO(T,118),stages:makeStages(),orgIds:[orgA.id],contactIds:[c1.id,c2.id]};
-  const p2={id:uid(),name:'Фарфор XVIII века',priority:'normal',orgId:orgB.id,dv:addDaysISO(T,104),open:addDaysISO(T,108),ret:addDaysISO(T,190),stages:makeStages(),orgIds:[orgB.id],contactIds:[c3.id]};
-  const p3={id:uid(),name:'Гербарий Севера',priority:'background',orgId:orgA.id,dv:addDaysISO(T,-12),open:addDaysISO(T,-9),ret:addDaysISO(T,66),stages:makeStages(),orgIds:[orgA.id],contactIds:[c1.id]};
+  const p1={id:uid(),name:'Выставка ромашек',direction:'vydacha',priority:'important',orgId:orgA.id,dv:addDaysISO(T,38),open:addDaysISO(T,41),ret:addDaysISO(T,118),stages:makeStages('vydacha'),orgIds:[orgA.id],contactIds:[c1.id,c2.id]};
+  const p2={id:uid(),name:'Фарфор XVIII века',direction:'vydacha',priority:'normal',orgId:orgB.id,dv:addDaysISO(T,104),open:addDaysISO(T,108),ret:addDaysISO(T,190),stages:makeStages('vydacha'),orgIds:[orgB.id],contactIds:[c3.id]};
+  const p3={id:uid(),name:'Гербарий Севера',direction:'vydacha',priority:'background',orgId:orgA.id,dv:addDaysISO(T,-12),open:addDaysISO(T,-9),ret:addDaysISO(T,66),stages:makeStages('vydacha'),orgIds:[orgA.id],contactIds:[c1.id]};
+  const p4={id:uid(),name:'Цифровые копии · живопись',direction:'dogovory',priority:'important',orgId:orgB.id,dv:addDaysISO(T,25),open:'',ret:'',stages:makeStages('dogovory'),orgIds:[orgB.id],contactIds:[c3.id]};
   const done=(p,s,n)=>{for(let k=0;k<n;k++){const t=p.stages[s].tasks[k];if(t)t.done=true;}};
   const asg=(p,s,t,ex)=>{const task=p.stages[s].tasks[t];if(task)task.assigneeId=ex.id;};
   done(p1,0,3); done(p1,1,5); done(p1,2,2);
@@ -613,14 +667,17 @@ function seed(){
   for(let s=0;s<4;s++) p3.stages[s].tasks.forEach(t=>{t.done=true;});
   done(p3,4,1);
   asg(p3,1,1,e1); asg(p3,3,5,e2);
+  done(p4,0,5); done(p4,1,3);
+  asg(p4,2,0,e1);
 
   const notes=[
     {id:uid(),projectId:p1.id,text:'Ромашки просят витрину №4 — уточнить у Анны до подписания договора.',color:'sun',pinned:true,createdAt:addDaysISO(T,-3)},
     {id:uid(),projectId:p1.id,text:'Страховая просит обновлённые фото паспортов сохранности до конца недели.',color:'rose',pinned:false,createdAt:addDaysISO(T,-1)},
     {id:uid(),projectId:p1.id,text:'Сергей подтвердил климат-бокс на 22 предмета.',color:'mint',pinned:false,createdAt:T},
-    {id:uid(),projectId:p2.id,text:'Проверить трещину на блюдце №12 перед фотофиксацией.',color:'sky',pinned:false,createdAt:T}
+    {id:uid(),projectId:p2.id,text:'Проверить трещину на блюдце №12 перед фотофиксацией.',color:'sky',pinned:false,createdAt:T},
+    {id:uid(),projectId:p4.id,text:'Контрагент просит копии в 600 dpi — уточнить возможность у Ирины.',color:'sky',pinned:true,createdAt:T}
   ];
-  return {projects:[p1,p2,p3],orgs:[orgA,orgB],contacts:[c1,c2,c3],executors:[e1,e2,e3],notes};
+  return {projects:[p1,p2,p3,p4],orgs:[orgA,orgB],contacts:[c1,c2,c3],executors:[e1,e2,e3],notes};
 }
 function normalize(d){
   return {projects:Array.isArray(d.projects)?d.projects:[],orgs:d.orgs||[],contacts:d.contacts||[],executors:d.executors||[],notes:d.notes||[]};
@@ -736,6 +793,7 @@ function migrateToV21(p){
 function migrateAll(){
   let changed=false;
   state.projects.forEach(p=>{
+    if(!p.direction){p.direction='vydacha';changed=true;}
     if(migrateOldTwoStages(p))changed=true;
     if(migrateExpandMerged(p))changed=true;
     if(migrateToV2(p))changed=true;
@@ -761,10 +819,14 @@ function flashSave(){
 /* ================= вычисления ================= */
 function projStats(p){let done=0,total=0;p.stages.forEach(s=>s.tasks.forEach(t=>{total++;if(t.done)done++;}));return{done,total,pct:total?Math.round(done/total*100):0};}
 function projPhase(p){
-  const st=projStats(p),T=todayISO();
+  const st=projStats(p),T=todayISO(),dog=isDog(p);
   if(st.total&&st.done===st.total)return{key:'done',cls:'c-muted',label:'Завершён'};
-  if(p.dv&&T>p.dv){if(p.ret&&T>p.ret)return{key:'late',cls:'c-amber',label:'Возврат · проверка'};return{key:'out',cls:'c-green',label:'На выставке'};}
-  return{key:'prep',cls:'c-blue',label:'Подготовка'};
+  if(p.dv&&T>p.dv){
+    if(dog)return{key:'late',cls:'c-red',label:'Просрочен'};
+    if(p.ret&&T>p.ret)return{key:'late',cls:'c-amber',label:'Возврат · проверка'};
+    return{key:'out',cls:'c-green',label:'На выставке'};
+  }
+  return{key:'prep',cls:'c-blue',label:dog?'В работе':'Подготовка'};
 }
 function countdownText(p){
   if(!p.dv)return 'дата не задана';
@@ -775,10 +837,13 @@ function countdownText(p){
   return (-n)+' '+dWord(-n)+' назад';
 }
 function cdInfo(p){
+  const dog=isDog(p);
+  const word=dog?'срока':'выдачи';
   const n=daysUntil(p.dv);
-  if(n>1)return{cls:'prep',big:String(n),lab:plural(n,'день','дня','дней')+' до выдачи'};
-  if(n===1)return{cls:'prep',big:'1',lab:'день до выдачи'};
-  if(n===0)return{cls:'today',big:'✳',lab:'выдача сегодня'};
+  if(n>1)return{cls:'prep',big:String(n),lab:plural(n,'день','дня','дней')+' до '+word};
+  if(n===1)return{cls:'prep',big:'1',lab:'день до '+word};
+  if(n===0)return{cls:'today',big:'✳',lab:dog?'срок сегодня':'выдача сегодня'};
+  if(dog)return{cls:'over',big:String(-n),lab:plural(-n,'день','дня','дней')+' просрочка'};
   if(p.ret){const r=daysUntil(p.ret);
     if(r>1)return{cls:'out',big:String(r),lab:plural(r,'день','дня','дней')+' до возврата'};
     if(r===1)return{cls:'out',big:'1',lab:'день до возврата'};
@@ -814,15 +879,17 @@ function dashStats(){
 function projectCard(p,i){
   const st=projStats(p),ph=projPhase(p),org=state.orgs.find(o=>o.id===p.orgId);
   const over=p.stages.reduce((a,s)=>a+(stageInfo(p,s).status==='overdue'?1:0),0);
+  const dog=isDog(p);
   return '<article class="pcard rise'+(ph.key==='done'?' is-done':'')+'" style="animation-delay:'+Math.min(i*70,420)+'ms" data-action="open-project" data-id="'+p.id+'">'
-   +'<div class="pcard-top">'+(org?'<span class="orgchip">'+esc(org.name)+'</span>':'<span class="orgchip">без партнёра</span>')
+   +'<div class="pcard-top"><span class="pcard-left">'+dirChipHtml(p)
+   +(org?'<span class="orgchip">'+esc(org.name)+'</span>':'<span class="orgchip">без партнёра</span>')+'</span>'
    +prioChipHtml(p)
    +'<span class="chip '+ph.cls+'">'+ph.label+'</span></div>'
    +'<h3 class="pcard-title">'+esc(p.name)+'</h3>'
-   +'<div class="pcard-dv">'+I.cal+'<span>выдача '+fmtLong(p.dv)+'</span><b class="cd">'+countdownText(p)+'</b></div>'
+   +'<div class="pcard-dv">'+I.cal+'<span>'+(dog?'срок ':'выдача ')+fmtLong(p.dv)+'</span><b class="cd">'+countdownText(p)+'</b></div>'
    +'<div class="pbar"><i class="f-'+ph.key+'" style="width:'+st.pct+'%"></i></div>'
    +'<div class="pcard-foot"><span>'+st.done+'/'+st.total+' задач · '+st.pct+'%</span>'
-   +(over?'<span class="overbadge">просрочено: '+over+'</span>':'<span class="dim2">возврат '+fmtShort(p.ret)+'</span>')+'</div></article>';
+   +(over?'<span class="overbadge">просрочено: '+over+'</span>':(dog?'<span class="dim2">цифровые копии</span>':'<span class="dim2">возврат '+fmtShort(p.ret)+'</span>'))+'</div></article>';
 }
 function vDashboard(){
   const s=dashStats(),near=s.upcoming;
@@ -840,13 +907,13 @@ function vDashboard(){
     }
   }
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер музейных выдач · v2.4</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v2.5</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
-   +'<p class="lede">Проекты, чек-листы и дедлайны, которые считаются сами — от даты выдачи до возврата.</p></section>'
+   +'<p class="lede">Выдачи и договоры: чек-листы и дедлайны, которые считаются сами — от ключевой даты проекта.</p></section>'
    +'<section class="stats rise" style="animation-delay:70ms">'
    +'<div class="stat"><b>'+s.inWork+'</b><div class="stat-tx"><span>в работе</span><small>проектов всего: '+s.total+'</small></div></div>'
    +'<div class="stat"><b>'+s.avg+'%</b><div class="stat-tx"><span>средний прогресс</span><small>по всем чек-листам</small></div></div>'
-   +'<div class="stat"><b>'+(near?daysUntil(near.dv):'—')+'</b><div class="stat-tx"><span>дней до ближайшей выдачи</span><small>'+(near?esc(near.name):'нет запланированных выдач')+'</small></div></div>'
+   +'<div class="stat"><b>'+(near?daysUntil(near.dv):'—')+'</b><div class="stat-tx"><span>дней до ближайшего дедлайна</span><small>'+(near?esc(near.name):'нет запланированных')+'</small></div></div>'
    +'<button class="stat stat-btn'+(ui.sortByPrio?' on':'')+'" data-action="sort-prio" title="Сортировать проекты по важности: от «горит» к «паузе»">'
    +'<span class="s-ic">'+I.sort+'</span>'
    +'<div class="stat-tx"><span>приоритет</span><small>'+(ui.sortByPrio?'сортировка: по убыванию':'сортировка: выключена')+'</small></div></button>'
@@ -864,7 +931,7 @@ function dateField(f,label,val){
 function vProject(){
   const p=cur();
   if(!p){ui.view='dash';return vDashboard();}
-  const st=projStats(p),cd=cdInfo(p);
+  const st=projStats(p),cd=cdInfo(p),dog=isDog(p);
   const org=state.orgs.find(o=>o.id===p.orgId);
   const noteCount=state.notes.filter(n=>n.projectId===p.id).length;
   const tabs=[['stages','Этапы'],['timeline','Таймлайн'],['contacts','Контакты'],['notes','Заметки']];
@@ -873,15 +940,16 @@ function vProject(){
    +'<button class="btn ghost sm" data-action="back">'+I.back+' К проектам</button>'
    +'<div class="title-line"><h2 class="proj-title" id="projTitle" data-action="rename-start" title="Нажмите, чтобы переименовать">'+esc(p.name)+'<span class="pen">'+I.pen+'</span></h2>'
    +'<div class="title-side">'
+   +dirChipHtml(p)
    +prioChipHtml(p)
    +(org
      ?'<button class="orgchip" data-action="partner-edit" title="Изменить партнёра проекта">'+esc(org.name)+'<span class="chip-caret">▾</span></button>'
      :'<button class="orgchip dashed" data-action="partner-edit" title="Добавить партнёра проекта">'+I.plus+' партнёр</button>')
    +'<button class="iconbtn danger-h" data-action="delete-project" title="Удалить проект">'+I.trash+'</button></div></div>'
    +'<div class="dates-line">'
-   +dateField('dv','Дата выдачи',p.dv)
-   +dateField('open','Открытие',p.open)
-   +dateField('ret','Возврат',p.ret)
+   +(dog
+     ?dateField('dv','Срок предоставления',p.dv)
+     :dateField('dv','Дата выдачи',p.dv)+dateField('open','Открытие',p.open)+dateField('ret','Возврат',p.ret))
    +'<div class="cd-banner '+cd.cls+'"><b>'+esc(cd.big)+'</b><span>'+esc(cd.lab)+'</span></div></div>'
    +'<div class="proj-progress"><div class="ptrack"><i id="projFill" style="width:'+st.pct+'%"></i></div><span id="projStatsTx">'+st.done+' из '+st.total+' задач · '+st.pct+'%</span></div>'
    +'</div>'
@@ -952,7 +1020,7 @@ function stagesInner(p){
   return h;
 }
 function stagesTab(p){
-  return '<p class="hint rise">Дедлайны этапов рассчитываются автоматически от даты выдачи и возврата. Тексты этапов и задач можно менять (карандаш), любую задачу можно удалить (✕), а в выпадающем списке — указать исполнителя из справочника. Выполненные на 100% этапы опускаются вниз.</p>'
+  return '<p class="hint rise">Дедлайны этапов рассчитываются автоматически от ключевой даты проекта. Тексты этапов и задач можно менять (карандаш), любую задачу можно удалить (✕), а в выпадающем списке — указать исполнителя из справочника. Выполненные на 100% этапы опускаются вниз.</p>'
    +'<div id="stagesWrap" class="rise" style="animation-delay:60ms">'+stagesInner(p)+'</div>';
 }
 function replaceStages(){
@@ -1051,13 +1119,14 @@ function commitRename(){
 
 /* -------- таймлайн -------- */
 function timelineTab(p){
+  const dog=isDog(p);
   const T=todayISO(),items=[],keys=[];
   p.stages.forEach((s,i)=>{const dl=stageDeadline(p,s);if(dl)items.push({date:dl,i,s});});
-  if(p.dv)keys.push({date:p.dv,label:'Выдача',cls:'k-dv'});
-  if(p.open)keys.push({date:p.open,label:'Открытие',cls:'k-open'});
-  if(p.ret)keys.push({date:p.ret,label:'Возврат',cls:'k-ret'});
+  if(p.dv)keys.push({date:p.dv,label:dog?'Срок':'Выдача',cls:'k-dv'});
+  if(!dog&&p.open)keys.push({date:p.open,label:'Открытие',cls:'k-open'});
+  if(!dog&&p.ret)keys.push({date:p.ret,label:'Возврат',cls:'k-ret'});
   const all=items.map(x=>x.date).concat(keys.map(k=>k.date)).sort();
-  if(!all.length)return '<p class="empty">Укажите дату выдачи, чтобы построить таймлайн.</p>';
+  if(!all.length)return '<p class="empty">Укажите ключевую дату, чтобы построить таймлайн.</p>';
   const start=addDaysISO(all[0],-7),end=addDaysISO(all[all.length-1],9);
   const totalDays=Math.max(daysBetween(start,end),1);
   const px=Math.max(13,Math.min(30,Math.round(1500/totalDays)));
@@ -1077,9 +1146,11 @@ function timelineTab(p){
       +'<span class="tl-lab" style="left:'+(X(it.date)+2)+'px;top:'+(it.i%2?152:128)+'px">'+esc(lab)+'</span>';
   }).join('');
   const cdFor=iso=>{const n=daysUntil(iso);if(n===0)return 'сегодня';if(n>0)return 'через '+n+' '+dWord(n);return (-n)+' '+dWord(-n)+' назад';};
-  const cards=[['Дата выдачи',p.dv,'kd-dv'],['Открытие',p.open,'kd-open'],['Возврат',p.ret,'kd-ret']].map(c=>
-    '<div class="kd '+c[2]+'"><span>'+c[0]+'</span><b>'+(c[1]?fmtLong(c[1]):'—')+'</b><small>'+(c[1]?cdFor(c[1]):'не указана')+'</small></div>').join('');
-  return '<div class="tl-cards rise">'+cards+'</div>'
+  const cards=dog
+    ? '<div class="kd kd-dv"><span>Срок предоставления</span><b>'+(p.dv?fmtLong(p.dv):'—')+'</b><small>'+(p.dv?cdFor(p.dv):'не указан')+'</small></div>'
+    : [['Дата выдачи',p.dv,'kd-dv'],['Открытие',p.open,'kd-open'],['Возврат',p.ret,'kd-ret']].map(c=>
+        '<div class="kd '+c[2]+'"><span>'+c[0]+'</span><b>'+(c[1]?fmtLong(c[1]):'—')+'</b><small>'+(c[1]?cdFor(c[1]):'не указана')+'</small></div>').join('');
+  return '<div class="tl-cards rise'+(dog?' one':'')+'">'+cards+'</div>'
    +'<div class="tl-scroll rise" style="animation-delay:70ms"><div class="tl-canvas" style="width:'+width+'px">'
    +monthsHtml+'<div class="tl-axis"></div>'+todayHtml+keysHtml+dotsHtml+'</div></div>'
    +'<div class="tl-legend"><span><i class="lg st-done"></i>готово</span><span><i class="lg st-over"></i>просрочено</span>'
@@ -1116,12 +1187,13 @@ function attachPanel(kind,p){
 function contactsTab(p){
   const po=p.orgIds.map(id=>state.orgs.find(o=>o.id===id)).filter(Boolean);
   const pc=p.contactIds.map(id=>state.contacts.find(c=>c.id===id)).filter(Boolean);
+  const dog=isDog(p);
   return '<div class="contact-cols rise">'
-   +'<section class="panel"><div class="panel-head"><h3>Организации проекта</h3>'
+   +'<section class="panel"><div class="panel-head"><h3>'+(dog?'Контрагент':'Организации проекта')+'</h3>'
    +'<button class="btn ghost sm" data-action="attach-open" data-kind="org">'+(ui.openAttach==='org'?'Скрыть список':I.plus+' Добавить')+'</button></div>'
    +(po.length?po.map(orgRow).join(''):'<p class="empty">Организации пока не привязаны.</p>')
    +(ui.openAttach==='org'?attachPanel('org',p):'')+'</section>'
-   +'<section class="panel"><div class="panel-head"><h3>Контакты проекта</h3>'
+   +'<section class="panel"><div class="panel-head"><h3>'+(dog?'Контакты':'Контакты проекта')+'</h3>'
    +'<button class="btn ghost sm" data-action="attach-open" data-kind="contact">'+(ui.openAttach==='contact'?'Скрыть список':I.plus+' Добавить')+'</button></div>'
    +(pc.length?pc.map(contactRow).join(''):'<p class="empty">Контакты пока не привязаны.</p>')
    +(ui.openAttach==='contact'?attachPanel('contact',p):'')+'</section>'
@@ -1249,23 +1321,41 @@ function askConfirm(text,ok){
   $('#confirmOk').addEventListener('click',()=>{closeModal();ok();});
 }
 function openNewProject(){
+  npDir='vydacha';
   openModal('<h3>Новый проект</h3>'
+   +'<label>Направление проекта *</label>'
+   +'<div class="dir-picker">'
+   +'<button type="button" class="dir-opt on" data-dir="vydacha"><b>✳ Выдача</b><span>выдача предметов на выставку</span></button>'
+   +'<button type="button" class="dir-opt" data-dir="dogovory"><b>§ Договоры</b><span>цифровые копии предметов</span></button>'
+   +'</div>'
    +'<label>Название проекта *<input id="np-name" maxlength="90" placeholder="Например: Выставка пионов"></label>'
    +'<label>Партнёр<input id="np-org" list="orgList" placeholder="Выберите из списка или введите новую"><datalist id="orgList">'
    +state.orgs.map(o=>'<option value="'+esc(o.name)+'">').join('')+'</datalist></label>'
-   +'<div class="grid3"><label>Дата выдачи (ДВ) *<input type="date" id="np-dv"></label>'
+   +'<div id="np-dates-vyd"><div class="grid3">'
+   +'<label>Дата выдачи (ДВ) *<input type="date" id="np-dv"></label>'
    +'<label>Открытие<input type="date" id="np-open"></label>'
-   +'<label>Возврат<input type="date" id="np-ret"></label></div>'
-   +'<p class="modal-hint">Дедлайны всех этапов рассчитаются автоматически от даты выдачи и даты возврата.</p>'
+   +'<label>Возврат<input type="date" id="np-ret"></label>'
+   +'</div><p class="modal-hint">Дедлайны всех этапов рассчитаются автоматически от даты выдачи и даты возврата.</p></div>'
+   +'<div id="np-dates-dog" style="display:none">'
+   +'<label>Срок предоставления *<input type="date" id="np-dv-dog"></label>'
+   +'<p class="modal-hint">Дедлайны всех этапов рассчитаются автоматически от срока предоставления.</p></div>'
    +'<div class="modal-actions"><button class="btn ghost" data-action="modal-close">Отмена</button>'
    +'<button class="btn primary" data-action="np-create">Создать проект</button></div>');
   $('#np-dv').value=addDaysISO(todayISO(),60);
+  $('#np-dv-dog').value=addDaysISO(todayISO(),30);
+  $$('.dir-opt').forEach(b=>b.addEventListener('click',()=>{
+    npDir=b.dataset.dir;
+    $$('.dir-opt').forEach(x=>x.classList.toggle('on',x===b));
+    $('#np-dates-vyd').style.display=npDir==='vydacha'?'':'none';
+    $('#np-dates-dog').style.display=npDir==='dogovory'?'':'none';
+  }));
   $('#np-name').focus();
 }
 function createProject(){
-  const name=$('#np-name').value.trim(),dv=$('#np-dv').value;
+  const name=$('#np-name').value.trim();
+  const dv=npDir==='dogovory'?$('#np-dv-dog').value:$('#np-dv').value;
   if(!name){toast('Укажите название проекта','err');return;}
-  if(!dv){toast('Укажите дату выдачи','err');return;}
+  if(!dv){toast(npDir==='dogovory'?'Укажите срок предоставления':'Укажите дату выдачи','err');return;}
   const orgName=$('#np-org').value.trim();
   let orgId=null;
   if(orgName){
@@ -1273,7 +1363,10 @@ function createProject(){
     if(!o){o={id:uid(),name:orgName,type:'Другое',city:'',phone:'',email:'',note:''};state.orgs.push(o);}
     orgId=o.id;
   }
-  const p={id:uid(),name:name,priority:'normal',orgId:orgId,dv:dv,open:$('#np-open').value||'',ret:$('#np-ret').value||'',stages:makeStages(),orgIds:orgId?[orgId]:[],contactIds:[]};
+  const p={id:uid(),name:name,direction:npDir,priority:'normal',orgId:orgId,dv:dv,
+    open:npDir==='dogovory'?'' : ($('#np-open').value||''),
+    ret:npDir==='dogovory'?'' : ($('#np-ret').value||''),
+    stages:makeStages(npDir),orgIds:orgId?[orgId]:[],contactIds:[]};
   state.projects.unshift(p);persist();closeModal();
   ui.view='project';ui.projectId=p.id;ui.tab='stages';ui.openAttach=null;
   renderApp();window.scrollTo(0,0);toast('Проект создан — дедлайны рассчитаны');
@@ -1378,8 +1471,8 @@ function saveExec(id){
 }
 function openPartnerModal(){
   const p=cur();if(!p)return;
-  openModal('<h3>Партнёр проекта</h3>'
-   +'<label>Организация-партнёр<select id="pt-sel">'
+  openModal('<h3>'+(isDog(p)?'Контрагент':'Партнёр проекта')+'</h3>'
+   +'<label>Организация<select id="pt-sel">'
    +'<option value="">— Без партнёра —</option>'
    +state.orgs.map(o=>'<option value="'+o.id+'"'+(p.orgId===o.id?' selected':'')+'>'+esc(o.name)+(o.city?' ('+esc(o.city)+')':'')+'</option>').join('')
    +'<option value="__new">➕ Создать новую организацию…</option>'
@@ -1447,7 +1540,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'2.4',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'2.5',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
