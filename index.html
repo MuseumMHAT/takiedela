@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v3.1</title>
+<title>Такие дела — выдачи и проекты · v3.2</title>
 <meta name="description" content="Персональный трекер музейных выдач и договоров: проекты, этапы, автодедлайны, контакты, исполнители и заметки.">
 <meta name="theme-color" content="#c14e24">
 <meta property="og:title" content="Такие дела — трекер музейных выдач">
@@ -506,7 +506,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач и договоров · версия 3.1 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач и договоров · версия 3.2 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -966,7 +966,7 @@ function vDashboard(){
   }
   const filterNext=DIR_FILTER_LABEL[DIR_CYCLE[(DIR_CYCLE.indexOf(ui.dirFilter)+1)%DIR_CYCLE.length]];
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v3.1</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v3.2</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Выдачи и договоры: чек-листы и дедлайны, которые считаются сами — от ключевой даты проекта.</p></section>'
    +'<section class="stats rise" style="animation-delay:70ms">'
@@ -1288,7 +1288,7 @@ function addNote(){
   const ta=$('#noteText'),v=(ta?ta.value:'').trim();
   if(!v){toast('Напишите текст заметки','err');return;}
   state.notes.push({id:uid(),projectId:ui.projectId,text:v,color:ui.noteColor,pinned:false,createdAt:todayISO()});
-  ui.noteDraft='';persist();refreshTab();toast('Заметка сохранена');
+  ui.noteDraft='';persist();refreshTab(false);toast('Заметка сохранена');
 }
 
 /* ================= справочник ================= */
@@ -1362,8 +1362,11 @@ function syncNav(){
   if(d){d.classList.toggle('active',ui.view!=='book');d.setAttribute('aria-current',ui.view!=='book'?'page':'false');}
   if(b){b.classList.toggle('active',ui.view==='book');b.setAttribute('aria-current',ui.view==='book'?'page':'false');}
 }
-function refreshTab(){
-  const nt=$('#noteText');if(nt)ui.noteDraft=nt.value;
+function refreshTab(saveDraft){
+  if(saveDraft!==false){
+    const nt=$('#noteText');
+    if(nt)ui.noteDraft=nt.value;
+  }
   const p=cur(),body=$('#tabBody');
   if(p&&body)body.innerHTML=renderTab(p);
   updateTabButtons();
@@ -1638,7 +1641,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'3.1',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'3.2',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
