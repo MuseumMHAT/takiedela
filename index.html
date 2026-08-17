@@ -1663,6 +1663,7 @@ function onClick(e){
   switch(a){
     case 'nav-dash':ui.view='dash';renderApp();window.scrollTo(0,0);break;
     case 'nav-book':ui.view='book';renderApp();window.scrollTo(0,0);break;
+    case 'theme-toggle':toggleTheme();break;
     case 'new-project':openNewProject();break;
     case 'open-project':ui.view='project';ui.projectId=id;ui.tab='stages';ui.openAttach=null;ui.addingStage=null;ui.editStage=null;ui.editTask=null;renderApp();window.scrollTo(0,0);break;
     case 'back':ui.view='dash';renderApp();window.scrollTo(0,0);break;
@@ -1796,7 +1797,7 @@ function headerHTML(){
    +'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 2v20M4.2 6.5l15.6 11M19.8 6.5L4.2 17.5"/></svg>Такие дела</button>'
    +'<nav class="mainnav" role="navigation" aria-label="Основная навигация"><button id="navDash" class="nbtn" data-action="nav-dash" aria-current="'+(ui.view==='dash'?'page':'false')+'">Проекты</button>'
    +'<button id="navBook" class="nbtn" data-action="nav-book" aria-current="'+(ui.view==='book'?'page':'false')+'">Справочник</button></nav>'
-   +'<div class="hdr-right"><button class="theme-toggle" id="themeToggle" title="Переключить тему" aria-label="Переключить тему">'+(isDark?'☀️':'🌙')+'</button>'
+   +'<div class="hdr-right"><button class="theme-toggle" id="themeToggle" data-action="theme-toggle" title="Переключить тему" aria-label="Переключить тему">'+(isDark?'☀️':'🌙')+'</button>'
    +'<div class="save-ind" title="Данные сохраняются в браузере автоматически"><span class="dot" id="saveDot"></span><span id="saveTxt">автосохранение</span></div>'
    +'<button class="btn ghost sm" data-action="import" title="Загрузить резервную копию JSON" aria-label="Импорт данных">'+I.ul+'<span>Импорт</span></button>'
    +'<button class="btn ghost sm" data-action="export" title="Скачать резервную копию JSON" aria-label="Экспорт JSON">'+I.dl+'<span>JSON</span></button>'
