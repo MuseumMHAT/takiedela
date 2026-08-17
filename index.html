@@ -3,13 +3,24 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v2.8</title>
+<title>Такие дела — выдачи и проекты · v3.0</title>
 <meta name="description" content="Персональный трекер музейных выдач и договоров: проекты, этапы, автодедлайны, контакты, исполнители и заметки.">
+<meta name="theme-color" content="#c14e24">
+<meta property="og:title" content="Такие дела — трекер музейных выдач">
+<meta property="og:description" content="Персональный трекер музейных выдач и договоров: проекты, этапы, автодедлайны, контакты, исполнители и заметки.">
+<meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2v20M4.2 6.5l15.6 11M19.8 6.5L4.2 17.5' stroke='%23c14e24' stroke-width='2.6' stroke-linecap='round' fill='none'/></svg>">
-<link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/500.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/700.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/@fontsource/golos-text@latest/400.css" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/@fontsource/golos-text@latest/600.css" rel="stylesheet">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVGFraWUgRGVsYSIsInNob3J0X25hbWUiOiJUYWtpZSBEZWxhIiwiZGVzY3JpcHRpb24iOiJUcmVrZXIgbXV6ZWlueXggdnlkYWNoIGkgaG9nb3Zvcm92Iiwic3RhcnRfdXJsIjoiLi8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZjZmMmVhIiwidGhlbWVfY29sb3IiOiIjYzE0ZTI0IiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3hsbCw8c3ZnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zycgdmlld0JveD0nMCAwIDI0IDI0Jz48cGF0aCBkPSdNMTIgMnYyME00LjIgNi41bDE1LjYgMTEgMTkuOCA2LjVMNC4yIDE3LjUnIHN0cm9rZT0nJTNDYzE0ZTI0JyBzdHJva2Utd2lkdGg9JzIuNicgc3Ryb2tlLWxpbmVjYXA9J3JvdW5kJyBmaWxsPSdub25lJy8+PC9zdmc+Iiwic2l6ZXMiOiI5Nng5NiIsInR5cGUiOiJpbWFnZS9zdmcreG1sIn1dfQ==">
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/500.css" rel="stylesheet" media="print" onload="this.media='all'">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/700.css" rel="stylesheet" media="print" onload="this.media='all'">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/golos-text@latest/400.css" rel="stylesheet" media="print" onload="this.media='all'">
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/golos-text@latest/600.css" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/500.css" rel="stylesheet"></noscript>
+<noscript><link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/700.css" rel="stylesheet"></noscript>
+<noscript><link href="https://cdn.jsdelivr.net/npm/@fontsource/golos-text@latest/400.css" rel="stylesheet"></noscript>
+<noscript><link href="https://cdn.jsdelivr.net/npm/@fontsource/golos-text@latest/600.css" rel="stylesheet"></noscript>
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net data:; img-src 'self' data: blob:; script-src 'self' 'unsafe-inline'; connect-src 'self' blob:;">
 <style>
 :root{
   --bg:#f6f2ea; --surface:#fffcf6; --surface2:#f8f3e9;
@@ -25,6 +36,17 @@
   --display:'Spectral',Georgia,'Times New Roman',serif;
   --body:'Golos Text',-apple-system,'Segoe UI',sans-serif;
 }
+[data-theme="dark"]{
+  --bg:#1a1814; --surface:#24201a; --surface2:#2a2620;
+  --ink:#e8e4dc; --ink2:#c8c0b0; --mut:#8a7f6a;
+  --line:rgba(232,228,220,.16); --line-soft:rgba(232,228,220,.09);
+  --accent:#d97a4f; --accent-soft:rgba(217,122,79,.15);
+  --green:#5aa57a; --green-soft:rgba(90,165,122,.15);
+  --amber:#d9a54f; --amber-soft:rgba(217,165,79,.18);
+  --red:#d95a4f; --red-soft:rgba(217,90,79,.15);
+  --blue:#6a8fb9; --blue-soft:rgba(106,143,185,.15);
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 26px -14px rgba(0,0,0,.5);
+}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
@@ -33,6 +55,7 @@ body{
     radial-gradient(1100px 560px at 88% -10%, rgba(193,78,36,.08), transparent 60%),
     radial-gradient(900px 520px at -8% 24%, rgba(62,125,90,.07), transparent 60%),
     var(--bg);
+  transition:background .3s,color .3s;
 }
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:radial-gradient(rgba(39,34,25,.055) 1px,transparent 1px);background-size:23px 23px;}
@@ -46,7 +69,7 @@ button{font-family:var(--body)}
 
 /* ---------- header ---------- */
 header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
-  backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft)}
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft);transition:background .3s,border-color .3s}
 .hdr-in{max-width:1120px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px}
 .logo{display:flex;align-items:center;gap:9px;font:700 19px var(--display);color:var(--ink);
   background:none;border:none;cursor:pointer}
@@ -60,6 +83,10 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .nbtn.active::after{content:'';position:absolute;left:10px;right:10px;bottom:2px;height:2.5px;
   border-radius:2px;background:var(--accent)}
 .hdr-right{margin-left:auto;display:flex;align-items:center;gap:9px}
+.theme-toggle{display:inline-flex;align-items:center;justify-content-center;width:34px;height:34px;flex:none;
+  border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink2);
+  cursor:pointer;transition:.15s;margin-right:4px}
+.theme-toggle:hover{background:var(--surface2);color:var(--accent);border-color:var(--accent)}
 .save-ind{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--mut);padding-right:4px;white-space:nowrap}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex:none}
 .dot.pulse{animation:pulse .9s}
@@ -1335,7 +1362,10 @@ function updateTabButtons(){
 
 /* ================= модалки ================= */
 function openModal(html,cls){
-  $('#modalRoot').innerHTML='<div class="overlay"><div class="modal '+(cls||'')+'">'+html+'</div></div>';
+  $('#modalRoot').innerHTML='<div class="overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal '+(cls||'')+'" role="document">'+html+'</div></div>';
+  const modal=$('#modalRoot .modal');
+  modal.setAttribute('aria-label','Модальное окно');
+  setTimeout(()=>{const firstFocusable=modal.querySelector('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');if(firstFocusable)firstFocusable.focus();},10);
 }
 function closeModal(){$('#modalRoot').innerHTML='';}
 function askConfirm(text,ok){
@@ -1586,10 +1616,23 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'2.8',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'3.0',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
+}
+function exportCSV(){
+  const rows=[['ID','Название','Тип','Организация','Дедлайн','Статус','Прогресс']];
+  state.projects.forEach(p=>{
+    const org=p.orgIds.length?state.orgs.find(o=>o.id===p.orgIds[0])?.name||'': '';
+    const prog=calcProgress(p);
+    rows.push([p.id,p.name,p.dir,p.orgIds.length?'выдача':'договор',org,p.done?'завершён':'в работе',prog+'%']);
+  });
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.csv';a.click();
+  URL.revokeObjectURL(a.href);toast('CSV экспортирован');
 }
 function importFile(file){
   const r=new FileReader();
@@ -1688,6 +1731,7 @@ function onClick(e){
     case 'contact-save':saveContact(el.dataset.id);break;
     case 'exec-save':saveExec(el.dataset.id);break;
     case 'export':exportData();break;
+    case 'export-csv':exportCSV();break;
     case 'import':$('#fileInput').click();break;
     case 'note-color':ui.noteColor=el.dataset.c;$$('.sw').forEach(s=>s.classList.toggle('active',s.dataset.c===ui.noteColor));break;
     case 'note-add':addNote();break;
@@ -1746,16 +1790,23 @@ function onKey(e){
 
 /* ================= шапка и старт ================= */
 function headerHTML(){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
   return '<div class="hdr-in">'
-   +'<button class="logo" data-action="nav-dash" title="На главную">'
+   +'<button class="logo" data-action="nav-dash" title="На главную" aria-label="На главную">'
    +'<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 2v20M4.2 6.5l15.6 11M19.8 6.5L4.2 17.5"/></svg>Такие дела</button>'
-   +'<nav class="mainnav"><button id="navDash" class="nbtn" data-action="nav-dash">Проекты</button>'
-   +'<button id="navBook" class="nbtn" data-action="nav-book">Справочник</button></nav>'
-   +'<div class="hdr-right"><div class="save-ind" title="Данные сохраняются в браузере автоматически"><span class="dot" id="saveDot"></span><span id="saveTxt">автосохранение</span></div>'
-   +'<button class="btn ghost sm" data-action="import" title="Загрузить резервную копию JSON">'+I.ul+'<span>Импорт</span></button>'
-   +'<button class="btn ghost sm" data-action="export" title="Скачать резервную копию JSON">'+I.dl+'<span>Экспорт</span></button></div></div>';
+   +'<nav class="mainnav" role="navigation" aria-label="Основная навигация"><button id="navDash" class="nbtn" data-action="nav-dash" aria-current="'+(ui.view==='dash'?'page':'false')+'">Проекты</button>'
+   +'<button id="navBook" class="nbtn" data-action="nav-book" aria-current="'+(ui.view==='book'?'page':'false')+'">Справочник</button></nav>'
+   +'<div class="hdr-right"><button class="theme-toggle" id="themeToggle" title="Переключить тему" aria-label="Переключить тему">'+(isDark?'☀️':'🌙')+'</button>'
+   +'<div class="save-ind" title="Данные сохраняются в браузере автоматически"><span class="dot" id="saveDot"></span><span id="saveTxt">автосохранение</span></div>'
+   +'<button class="btn ghost sm" data-action="import" title="Загрузить резервную копию JSON" aria-label="Импорт данных">'+I.ul+'<span>Импорт</span></button>'
+   +'<button class="btn ghost sm" data-action="export" title="Скачать резервную копию JSON" aria-label="Экспорт JSON">'+I.dl+'<span>JSON</span></button>'
+   +'<button class="btn ghost sm" data-action="export-csv" title="Скачать CSV" aria-label="Экспорт CSV">'+I.dl+'<span>CSV</span></button></div></div>';
 }
 function init(){
+  try{
+    const savedTheme=localStorage.getItem(LS_KEY+'_theme');
+    if(savedTheme==='dark')document.documentElement.setAttribute('data-theme','dark');
+  }catch(e){}
   $('#hdr').innerHTML=headerHTML();
   try{
     ui.sortByPrio=localStorage.getItem(LS_SORT)==='1';
@@ -1772,6 +1823,13 @@ function init(){
     if(e.target.files&&e.target.files[0])importFile(e.target.files[0]);
     e.target.value='';
   });
+}
+function toggleTheme(){
+  const html=document.documentElement;
+  const isDark=html.getAttribute('data-theme')==='dark';
+  if(isDark){html.removeAttribute('data-theme');localStorage.setItem(LS_KEY+'_theme','light');}
+  else{html.setAttribute('data-theme','dark');localStorage.setItem(LS_KEY+'_theme','dark');}
+  renderApp();
 }
 init();
 </script>
