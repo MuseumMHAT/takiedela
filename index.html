@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v3.2</title>
-<meta name="description" content="Персональный трекер музейных выдач и договоров: проекты, этапы, автодедлайны, контакты, исполнители и заметки.">
+<title>Такие дела — выдачи и проекты · v3.4</title>
+<meta name="description" content="Персональный трекер музейных выдач, договоров и музейных проектов: этапы, автодедлайны, контакты, исполнители и заметки.">
 <meta name="theme-color" content="#c14e24">
 <meta property="og:title" content="Такие дела — трекер музейных выдач">
-<meta property="og:description" content="Персональный трекер музейных выдач и договоров: проекты, этапы, автодедлайны, контакты, исполнители и заметки.">
+<meta property="og:description" content="Персональный трекер музейных выдач, договоров и музейных проектов.">
 <meta property="og:type" content="website">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M12 2v20M4.2 6.5l15.6 11M19.8 6.5L4.2 17.5' stroke='%23c14e24' stroke-width='2.6' stroke-linecap='round' fill='none'/></svg>">
-<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVGFraWUgRGVsYSIsInNob3J0X25hbWUiOiJUYWtpZSBEZWxhIiwiZGVzY3JpcHRpb24iOiJUcmVrZXIgbXV6ZWlueXggdnlkYWNoIGkgaG9nb3Zvcm92Iiwic3RhcnRfdXJsIjoiLi8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjZjZmMmVhIiwidGhlbWVfY29sb3IiOiIjYzE0ZTI0In0=">
+<link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiVGFraWUgRGVsYSIsInNob3J0X25hbWUiOiJUYWtpZSBEZWxhIiwiZGVzY3JpcHRpb24iOiJUcmVrZXIgbXV6ZWlueXggdnlkYWNoLCBkb2dvdm9yb3YgaSBtdXpleW55aCBwcm9la3RvdiIsInN0YXJ0X3VybCI6Ii4vIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiI2Y2ZjJlYSIsInRoZW1lX2NvbG9yIjoiI2MxNGUyNCJ9">
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/500.css" rel="stylesheet" media="print" onload="this.media='all'">
 <link href="https://cdn.jsdelivr.net/npm/@fontsource/spectral@latest/700.css" rel="stylesheet" media="print" onload="this.media='all'">
@@ -125,6 +125,7 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
   text-transform:uppercase;padding:3px 8px;border-radius:6px;white-space:nowrap;flex:none}
 .d-vyd{background:var(--green-soft);color:var(--green)}
 .d-dog{background:var(--accent-soft);color:var(--accent)}
+.d-museum{background:var(--blue-soft);color:var(--blue)}
 .hint{color:var(--mut);font-size:13px;margin:14px 2px;line-height:1.5}
 .empty{color:var(--mut);font-size:13.5px;padding:6px 0}
 .dim2{color:var(--mut)}
@@ -195,8 +196,11 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .pcard.pc-vyd::before{background:linear-gradient(90deg,var(--green),#6ea583)}
 .pcard.pc-dog{background:#fcefe1;border-color:rgba(193,78,36,.22)}
 .pcard.pc-dog::before{background:linear-gradient(90deg,var(--accent),#e0854f)}
+.pcard.pc-museum{background:#e3edf7;border-color:rgba(65,98,142,.22)}
+.pcard.pc-museum::before{background:linear-gradient(90deg,var(--blue),#7fa3cc)}
 [data-theme="dark"] .pcard.pc-vyd{background:rgba(90,165,122,.10);border-color:rgba(90,165,122,.3)}
 [data-theme="dark"] .pcard.pc-dog{background:rgba(217,122,79,.10);border-color:rgba(217,122,79,.3)}
+[data-theme="dark"] .pcard.pc-museum{background:rgba(106,143,185,.10);border-color:rgba(106,143,185,.3)}
 .pcard.is-done{opacity:.78}
 .pcard.is-done:hover{opacity:1}
 .pcard-top{display:flex;justify-content:flex-end;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
@@ -305,7 +309,7 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 .box svg{width:12px;height:12px;opacity:0;transform:scale(.4);transition:all .18s}
 .chk input:checked + .box{background:var(--green);border-color:var(--green)}
 .chk input:checked + .box svg{opacity:1;transform:scale(1)}
-.chk input:checked ~ .txt{color:var(--mut);text-decoration:line-through;text-decoration-color:rgba(128,120,100,.5)}
+.chk input:checked ~ .txt{color:var(--mut);text-decoration:line-through;text-decoration-color:rgba(39,34,25,.3)}
 .txt{color:var(--ink2);line-height:1.45}
 .task-assign{font:600 12px var(--body);color:var(--ink2);border:1px dashed var(--line);border-radius:999px;
   padding:3px 9px;background:transparent;cursor:pointer;max-width:180px;transition:.15s;margin-top:1px}
@@ -458,7 +462,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 .modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
 .modal-hint{font-size:12.5px;color:var(--mut);background:var(--surface2);border:1px dashed var(--line);
   border-radius:8px;padding:9px 12px;margin:4px 0;line-height:1.5}
-.dir-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.dir-picker{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
 .dir-opt{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:10px 12px;cursor:pointer;
   text-align:left;transition:.15s;display:flex;flex-direction:column;gap:3px}
 .dir-opt b{font:700 15px var(--body);color:var(--ink)}
@@ -489,6 +493,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 @media(max-width:860px){
   .contact-cols{grid-template-columns:1fr}
   .tl-cards{grid-template-columns:1fr}
+  .dir-picker{grid-template-columns:1fr 1fr}
 }
 @media(max-width:640px){
   .hdr-in{gap:8px}
@@ -506,7 +511,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач и договоров · версия 3.2 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 3.4 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -604,12 +609,16 @@ function openPrioMenu(p,anchor){
 /* ================= направления и шаблоны этапов ================= */
 const DIR_META={
   vydacha:{label:'Выдача',sub:'выдача предметов на выставку',dateLabel:'Дата выдачи',word:'выдачи'},
-  dogovory:{label:'Договоры',sub:'цифровые копии предметов',dateLabel:'Срок предоставления',word:'срока'}
+  dogovory:{label:'Договоры',sub:'цифровые копии предметов',dateLabel:'Срок предоставления',word:'срока'},
+  museum:{label:'Музейное',sub:'музейные проекты',dateLabel:'Дата проекта',word:'срока'}
 };
 const isDog=p=>(p.direction||'vydacha')==='dogovory';
+const isMuseum=p=>(p.direction||'vydacha')==='museum';
 function dirChipHtml(p){
-  const dog=isDog(p);
-  return '<span class="dirchip '+(dog?'d-dog':'d-vyd')+'" title="Направление проекта">'+(dog?'Договоры':'Выдача')+'</span>';
+  const d=p.direction||'vydacha';
+  const labels={vydacha:'Выдача',dogovory:'Договоры',museum:'Музейное'};
+  const cls={vydacha:'d-vyd',dogovory:'d-dog',museum:'d-museum'}[d]||'d-vyd';
+  return '<span class="dirchip '+cls+'" title="Направление проекта">'+(labels[d]||'Выдача')+'</span>';
 }
 
 /* фильтр по направлению: все проекты → договоры → выдача */
@@ -684,7 +693,12 @@ const STAGES_DOGOVORY=[
    'Направление счёта на оплату и акта',
    'Подписание Акта и закрытие договора']}
 ];
-const TEMPLATES={vydacha:STAGES_VYDACHA,dogovory:STAGES_DOGOVORY};
+const STAGES_MUSEUM=[
+ {t:'Запрос.',a:'dv',off:-14,tasks:['тема','цель','контакт']},
+ {t:'Процесс',a:'dv',off:0,tasks:['старт','исполнение']},
+ {t:'Завершение',a:'dv',off:7,tasks:['проверка','сдача']}
+];
+const TEMPLATES={vydacha:STAGES_VYDACHA,dogovory:STAGES_DOGOVORY,museum:STAGES_MUSEUM};
 const STAGES_TEMPLATE=STAGES_VYDACHA; /* используется старыми миграциями */
 const makeStages=dir=>(TEMPLATES[dir]||STAGES_VYDACHA).map(s=>({t:s.t,a:s.a,off:s.off,tasks:s.tasks.map(x=>({id:uid(),text:x,done:false,assigneeId:''}))}));
 
@@ -714,6 +728,7 @@ function seed(){
   const p2={id:uid(),name:'Фарфор XVIII века',direction:'vydacha',priority:'normal',orgId:orgB.id,dv:addDaysISO(T,104),open:addDaysISO(T,108),ret:addDaysISO(T,190),stages:makeStages('vydacha'),orgIds:[orgB.id],contactIds:[c3.id]};
   const p3={id:uid(),name:'Гербарий Севера',direction:'vydacha',priority:'background',orgId:orgA.id,dv:addDaysISO(T,-12),open:addDaysISO(T,-9),ret:addDaysISO(T,66),stages:makeStages('vydacha'),orgIds:[orgA.id],contactIds:[c1.id]};
   const p4={id:uid(),name:'Цифровые копии · живопись',direction:'dogovory',priority:'important',orgId:orgB.id,dv:addDaysISO(T,25),open:'',ret:'',stages:makeStages('dogovory'),orgIds:[orgB.id],contactIds:[c3.id]};
+  const p5={id:uid(),name:'Музейное',direction:'museum',priority:'normal',orgId:null,dv:addDaysISO(T,21),open:'',ret:'',stages:makeStages('museum'),orgIds:[],contactIds:[]};
   const done=(p,s,n)=>{for(let k=0;k<n;k++){const t=p.stages[s].tasks[k];if(t)t.done=true;}};
   const asg=(p,s,t,ex)=>{const task=p.stages[s].tasks[t];if(task)task.assigneeId=ex.id;};
   done(p1,0,3); done(p1,1,5); done(p1,2,2);
@@ -725,6 +740,7 @@ function seed(){
   asg(p3,1,1,e1); asg(p3,3,5,e2);
   done(p4,0,5); done(p4,1,3);
   asg(p4,2,0,e1);
+  done(p5,0,3); done(p5,1,1);
 
   const notes=[
     {id:uid(),projectId:p1.id,text:'Ромашки просят витрину №4 — уточнить у Анны до подписания договора.',color:'sun',pinned:true,createdAt:addDaysISO(T,-3)},
@@ -733,7 +749,7 @@ function seed(){
     {id:uid(),projectId:p2.id,text:'Проверить трещину на блюдце №12 перед фотофиксацией.',color:'sky',pinned:false,createdAt:T},
     {id:uid(),projectId:p4.id,text:'Контрагент просит копии в 600 dpi — уточнить возможность у Ирины.',color:'sky',pinned:true,createdAt:T}
   ];
-  return {projects:[p1,p2,p3,p4],orgs:[orgA,orgB],contacts:[c1,c2,c3],executors:[e1,e2,e3],notes};
+  return {projects:[p1,p2,p3,p4,p5],orgs:[orgA,orgB],contacts:[c1,c2,c3],executors:[e1,e2,e3],notes};
 }
 function normalize(d){
   return {projects:Array.isArray(d.projects)?d.projects:[],orgs:d.orgs||[],contacts:d.contacts||[],executors:d.executors||[],notes:d.notes||[]};
@@ -875,14 +891,14 @@ function flashSave(){
 /* ================= вычисления ================= */
 function projStats(p){let done=0,total=0;p.stages.forEach(s=>s.tasks.forEach(t=>{total++;if(t.done)done++;}));return{done,total,pct:total?Math.round(done/total*100):0};}
 function projPhase(p){
-  const st=projStats(p),T=todayISO(),dog=isDog(p);
+  const st=projStats(p),T=todayISO(),single=isDog(p)||isMuseum(p);
   if(st.total&&st.done===st.total)return{key:'done',cls:'c-muted',label:'Завершён'};
   if(p.dv&&T>p.dv){
-    if(dog)return{key:'late',cls:'c-red',label:'Просрочен'};
+    if(single)return{key:'late',cls:'c-red',label:'Просрочен'};
     if(p.ret&&T>p.ret)return{key:'late',cls:'c-amber',label:'Возврат · проверка'};
     return{key:'out',cls:'c-green',label:'На выставке'};
   }
-  return{key:'prep',cls:'c-blue',label:dog?'В работе':'Подготовка'};
+  return{key:'prep',cls:'c-blue',label:(isDog(p)||isMuseum(p))?'В работе':'Подготовка'};
 }
 function countdownText(p){
   if(!p.dv)return 'дата не задана';
@@ -893,13 +909,13 @@ function countdownText(p){
   return (-n)+' '+dWord(-n)+' назад';
 }
 function cdInfo(p){
-  const dog=isDog(p);
-  const word=dog?'срока':'выдачи';
+  const single=isDog(p)||isMuseum(p);
+  const word=single?'срока':'выдачи';
   const n=daysUntil(p.dv);
   if(n>1)return{cls:'prep',big:String(n),lab:plural(n,'день','дня','дней')+' до '+word};
   if(n===1)return{cls:'prep',big:'1',lab:'день до '+word};
-  if(n===0)return{cls:'today',big:'✳',lab:dog?'срок сегодня':'выдача сегодня'};
-  if(dog)return{cls:'over',big:String(-n),lab:plural(-n,'день','дня','дней')+' просрочка'};
+  if(n===0)return{cls:'today',big:'✳',lab:isMuseum(p)?'дата проекта сегодня':(isDog(p)?'срок сегодня':'выдача сегодня')};
+  if(single)return{cls:'over',big:String(-n),lab:plural(-n,'день','дня','дней')+' просрочка'};
   if(p.ret){const r=daysUntil(p.ret);
     if(r>1)return{cls:'out',big:String(r),lab:plural(r,'день','дня','дней')+' до возврата'};
     if(r===1)return{cls:'out',big:'1',lab:'день до возврата'};
@@ -934,17 +950,23 @@ function dashStats(pool){
 function projectCard(p,i){
   const st=projStats(p),ph=projPhase(p),org=state.orgs.find(o=>o.id===p.orgId);
   const over=p.stages.reduce((a,s)=>a+(stageInfo(p,s).status==='overdue'?1:0),0);
-  const dog=isDog(p);
-  return '<article class="pcard rise '+(dog?'pc-dog':'pc-vyd')+(ph.key==='done'?' is-done':'')+'" style="animation-delay:'+Math.min(i*70,420)+'ms" data-action="open-project" data-id="'+p.id+'">'
+  const museum=isMuseum(p),dog=isDog(p);
+  const datePrefix=(dog||museum)?'срок ':'выдача ';
+  let footRight;
+  if(over)footRight='<span class="overbadge">просрочено: '+over+'</span>';
+  else if(dog)footRight='<span class="dim2">цифровые копии</span>';
+  else if(museum)footRight='<span class="dim2">музейный проект</span>';
+  else footRight='<span class="dim2">возврат '+fmtShort(p.ret)+'</span>';
+  const cardCls=museum?'pc-museum':(dog?'pc-dog':'pc-vyd');
+  return '<article class="pcard rise '+cardCls+(ph.key==='done'?' is-done':'')+'" style="animation-delay:'+Math.min(i*70,420)+'ms" data-action="open-project" data-id="'+p.id+'">'
    +'<div class="pcard-top"><span class="pcard-left">'+dirChipHtml(p)
    +(org?'<span class="orgchip">'+esc(org.name)+'</span>':'<span class="orgchip">без партнёра</span>')+'</span>'
    +prioChipHtml(p)
    +'<span class="chip '+ph.cls+'">'+ph.label+'</span></div>'
    +'<h3 class="pcard-title">'+esc(p.name)+'</h3>'
-   +'<div class="pcard-dv">'+I.cal+'<span>'+(dog?'срок ':'выдача ')+fmtLong(p.dv)+'</span><b class="cd">'+countdownText(p)+'</b></div>'
+   +'<div class="pcard-dv">'+I.cal+'<span>'+datePrefix+fmtLong(p.dv)+'</span><b class="cd">'+countdownText(p)+'</b></div>'
    +'<div class="pbar"><i class="f-'+ph.key+'" style="width:'+st.pct+'%"></i></div>'
-   +'<div class="pcard-foot"><span>'+st.done+'/'+st.total+' задач · '+st.pct+'%</span>'
-   +(over?'<span class="overbadge">просрочено: '+over+'</span>':(dog?'<span class="dim2">цифровые копии</span>':'<span class="dim2">возврат '+fmtShort(p.ret)+'</span>'))+'</div></article>';
+   +'<div class="pcard-foot"><span>'+st.done+'/'+st.total+' задач · '+st.pct+'%</span>'+footRight+'</div></article>';
 }
 function vDashboard(){
   const pool=state.projects.filter(p=>ui.dirFilter==='all'||(p.direction||'vydacha')===ui.dirFilter);
@@ -966,9 +988,9 @@ function vDashboard(){
   }
   const filterNext=DIR_FILTER_LABEL[DIR_CYCLE[(DIR_CYCLE.indexOf(ui.dirFilter)+1)%DIR_CYCLE.length]];
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v3.2</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v3.4</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
-   +'<p class="lede">Выдачи и договоры: чек-листы и дедлайны, которые считаются сами — от ключевой даты проекта.</p></section>'
+   +'<p class="lede">Выдачи, договоры и музейные проекты: чек-листы и дедлайны, которые считаются сами — от ключевой даты проекта.</p></section>'
    +'<section class="stats rise" style="animation-delay:70ms">'
    +'<button class="stat stat-btn'+(ui.dirFilter!=='all'?' on':'')+'" data-action="dir-filter" title="Фильтр по направлению: следующее значение — «'+filterNext+'»">'
    +'<span class="s-ic"><i class="f-dot" style="background:'+dirFilterDot()+'"></i></span>'
@@ -992,10 +1014,14 @@ function dateField(f,label,val){
 function vProject(){
   const p=cur();
   if(!p){ui.view='dash';return vDashboard();}
-  const st=projStats(p),cd=cdInfo(p),dog=isDog(p);
+  const st=projStats(p),cd=cdInfo(p),dog=isDog(p),museum=isMuseum(p);
   const org=state.orgs.find(o=>o.id===p.orgId);
   const noteCount=state.notes.filter(n=>n.projectId===p.id).length;
   const tabs=[['stages','Этапы'],['timeline','Таймлайн'],['contacts','Контакты'],['notes','Заметки']];
+  let datesHtml;
+  if(museum)datesHtml=dateField('dv','Дата проекта',p.dv);
+  else if(dog)datesHtml=dateField('dv','Срок предоставления',p.dv);
+  else datesHtml=dateField('dv','Дата выдачи',p.dv)+dateField('open','Открытие',p.open)+dateField('ret','Возврат',p.ret);
   return '<div class="wrap">'
    +'<div class="proj-head rise">'
    +'<button class="btn ghost sm" data-action="back">'+I.back+' К проектам</button>'
@@ -1007,10 +1033,7 @@ function vProject(){
      ?'<button class="orgchip" data-action="partner-edit" title="Изменить партнёра проекта">'+esc(org.name)+'<span class="chip-caret">▾</span></button>'
      :'<button class="orgchip dashed" data-action="partner-edit" title="Добавить партнёра проекта">'+I.plus+' партнёр</button>')
    +'<button class="iconbtn danger-h" data-action="delete-project" title="Удалить проект">'+I.trash+'</button></div></div>'
-   +'<div class="dates-line">'
-   +(dog
-     ?dateField('dv','Срок предоставления',p.dv)
-     :dateField('dv','Дата выдачи',p.dv)+dateField('open','Открытие',p.open)+dateField('ret','Возврат',p.ret))
+   +'<div class="dates-line">'+datesHtml
    +'<div class="cd-banner '+cd.cls+'"><b>'+esc(cd.big)+'</b><span>'+esc(cd.lab)+'</span></div></div>'
    +'<div class="proj-progress"><div class="ptrack"><i id="projFill" style="width:'+st.pct+'%"></i></div><span id="projStatsTx">'+st.done+' из '+st.total+' задач · '+st.pct+'%</span></div>'
    +'</div>'
@@ -1180,12 +1203,12 @@ function commitRename(){
 
 /* -------- таймлайн -------- */
 function timelineTab(p){
-  const dog=isDog(p);
+  const single=isDog(p)||isMuseum(p),museum=isMuseum(p);
   const T=todayISO(),items=[],keys=[];
   p.stages.forEach((s,i)=>{const dl=stageDeadline(p,s);if(dl)items.push({date:dl,i,s});});
-  if(p.dv)keys.push({date:p.dv,label:dog?'Срок':'Выдача',cls:'k-dv'});
-  if(!dog&&p.open)keys.push({date:p.open,label:'Открытие',cls:'k-open'});
-  if(!dog&&p.ret)keys.push({date:p.ret,label:'Возврат',cls:'k-ret'});
+  if(p.dv)keys.push({date:p.dv,label:single?'Срок':'Выдача',cls:'k-dv'});
+  if(!single&&p.open)keys.push({date:p.open,label:'Открытие',cls:'k-open'});
+  if(!single&&p.ret)keys.push({date:p.ret,label:'Возврат',cls:'k-ret'});
   const all=items.map(x=>x.date).concat(keys.map(k=>k.date)).sort();
   if(!all.length)return '<p class="empty">Укажите ключевую дату, чтобы построить таймлайн.</p>';
   const start=addDaysISO(all[0],-7),end=addDaysISO(all[all.length-1],9);
@@ -1207,11 +1230,12 @@ function timelineTab(p){
       +'<span class="tl-lab" style="left:'+(X(it.date)+2)+'px;top:'+(it.i%2?152:128)+'px">'+esc(lab)+'</span>';
   }).join('');
   const cdFor=iso=>{const n=daysUntil(iso);if(n===0)return 'сегодня';if(n>0)return 'через '+n+' '+dWord(n);return (-n)+' '+dWord(-n)+' назад';};
-  const cards=dog
-    ? '<div class="kd kd-dv"><span>Срок предоставления</span><b>'+(p.dv?fmtLong(p.dv):'—')+'</b><small>'+(p.dv?cdFor(p.dv):'не указан')+'</small></div>'
+  const cdLabel=museum?'Дата проекта':(isDog(p)?'Срок предоставления':'Дата выдачи');
+  const cards=single
+    ? '<div class="kd kd-dv"><span>'+cdLabel+'</span><b>'+(p.dv?fmtLong(p.dv):'—')+'</b><small>'+(p.dv?cdFor(p.dv):'не указан')+'</small></div>'
     : [['Дата выдачи',p.dv,'kd-dv'],['Открытие',p.open,'kd-open'],['Возврат',p.ret,'kd-ret']].map(c=>
         '<div class="kd '+c[2]+'"><span>'+c[0]+'</span><b>'+(c[1]?fmtLong(c[1]):'—')+'</b><small>'+(c[1]?cdFor(c[1]):'не указана')+'</small></div>').join('');
-  return '<div class="tl-cards rise'+(dog?' one':'')+'">'+cards+'</div>'
+  return '<div class="tl-cards rise'+(single?' one':'')+'">'+cards+'</div>'
    +'<div class="tl-scroll rise" style="animation-delay:70ms"><div class="tl-canvas" style="width:'+width+'px">'
    +monthsHtml+'<div class="tl-axis"></div>'+todayHtml+keysHtml+dotsHtml+'</div></div>'
    +'<div class="tl-legend"><span><i class="lg st-done"></i>готово</span><span><i class="lg st-over"></i>просрочено</span>'
@@ -1386,6 +1410,13 @@ function toggleTheme(){
   syncNav();
 }
 
+/* ================= календарь дат ================= */
+function onDateFocusIn(e){
+  const el=e.target;
+  if(!el||el.type!=='date')return;
+  /* пусто → календарь откроется на сегодня; заполнено → откроется на этой дате */
+}
+
 /* ================= модалки ================= */
 function openModal(html,cls){
   $('#modalRoot').innerHTML='<div class="overlay" role="dialog" aria-modal="true"><div class="modal '+(cls||'')+'" role="document">'+html+'</div></div>';
@@ -1405,6 +1436,7 @@ function openNewProject(){
    +'<div class="dir-picker">'
    +'<button type="button" class="dir-opt on" data-dir="vydacha"><b>✳ Выдача</b><span>выдача предметов на выставку</span></button>'
    +'<button type="button" class="dir-opt" data-dir="dogovory"><b>§ Договоры</b><span>цифровые копии предметов</span></button>'
+   +'<button type="button" class="dir-opt" data-dir="museum"><b>◆ Музейное</b><span>музейные проекты</span></button>'
    +'</div>'
    +'<label>Название проекта *<input id="np-name" maxlength="90" placeholder="Например: Выставка пионов"></label>'
    +'<label>Партнёр<input id="np-org" list="orgList" placeholder="Выберите из списка или введите новую"><datalist id="orgList">'
@@ -1417,23 +1449,31 @@ function openNewProject(){
    +'<div id="np-dates-dog" style="display:none">'
    +'<label>Срок предоставления *<input type="date" id="np-dv-dog"></label>'
    +'<p class="modal-hint">Дедлайны всех этапов рассчитаются автоматически от срока предоставления.</p></div>'
+   +'<div id="np-dates-museum" style="display:none">'
+   +'<label>Дата проекта *<input type="date" id="np-dv-museum"></label>'
+   +'<p class="modal-hint">Дедлайны этапов рассчитаются автоматически от даты проекта.</p></div>'
    +'<div class="modal-actions"><button class="btn ghost" data-action="modal-close">Отмена</button>'
    +'<button class="btn primary" data-action="np-create">Создать проект</button></div>');
   $('#np-dv').value=addDaysISO(todayISO(),60);
   $('#np-dv-dog').value=addDaysISO(todayISO(),30);
+  $('#np-dv-museum').value=addDaysISO(todayISO(),21);
   $$('.dir-opt').forEach(b=>b.addEventListener('click',()=>{
     npDir=b.dataset.dir;
     $$('.dir-opt').forEach(x=>x.classList.toggle('on',x===b));
     $('#np-dates-vyd').style.display=npDir==='vydacha'?'':'none';
     $('#np-dates-dog').style.display=npDir==='dogovory'?'':'none';
+    $('#np-dates-museum').style.display=npDir==='museum'?'':'none';
   }));
   $('#np-name').focus();
 }
 function createProject(){
+  let dv;
+  if(npDir==='dogovory')dv=$('#np-dv-dog').value;
+  else if(npDir==='museum')dv=$('#np-dv-museum').value;
+  else dv=$('#np-dv').value;
   const name=$('#np-name').value.trim();
-  const dv=npDir==='dogovory'?$('#np-dv-dog').value:$('#np-dv').value;
   if(!name){toast('Укажите название проекта','err');return;}
-  if(!dv){toast(npDir==='dogovory'?'Укажите срок предоставления':'Укажите дату выдачи','err');return;}
+  if(!dv){toast(npDir==='dogovory'?'Укажите срок предоставления':(npDir==='museum'?'Укажите дату проекта':'Укажите дату выдачи'),'err');return;}
   const orgName=$('#np-org').value.trim();
   let orgId=null;
   if(orgName){
@@ -1441,9 +1481,9 @@ function createProject(){
     if(!o){o={id:uid(),name:orgName,type:'Другое',city:'',phone:'',email:'',note:''};state.orgs.push(o);}
     orgId=o.id;
   }
-  const p={id:uid(),name:name,direction:npDir,priority:'normal',orgId:orgId,dv:dv,
-    open:npDir==='dogovory'?'' : ($('#np-open').value||''),
-    ret:npDir==='dogovory'?'' : ($('#np-ret').value||''),
+  const open=npDir==='vydacha'?($('#np-open').value||''):'';
+  const ret=npDir==='vydacha'?($('#np-ret').value||''):'';
+  const p={id:uid(),name:name,direction:npDir,priority:'normal',orgId:orgId,dv:dv,open:open,ret:ret,
     stages:makeStages(npDir),orgIds:orgId?[orgId]:[],contactIds:[]};
   state.projects.unshift(p);persist();closeModal();
   ui.view='project';ui.projectId=p.id;ui.tab='stages';ui.openAttach=null;
@@ -1641,7 +1681,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'3.2',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'3.4',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
@@ -1652,15 +1692,8 @@ function exportCSV(){
     const st=projStats(p);
     const org=state.orgs.find(o=>o.id===p.orgId);
     const ph=projPhase(p);
-    rows.push([
-      p.name,
-      isDog(p)?'Договоры':'Выдача',
-      org?org.name:'',
-      prioOf(p).label,
-      ph.label,
-      p.dv||'',
-      st.pct
-    ]);
+    const dirLabel={vydacha:'Выдача',dogovory:'Договоры',museum:'Музейное'}[p.direction||'vydacha']||'Выдача';
+    rows.push([p.name,dirLabel,org?org.name:'',prioOf(p).label,ph.label,p.dv||'',st.pct]);
   });
   const csv='\uFEFF'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(';')).join('\r\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
@@ -1853,6 +1886,7 @@ function init(){
   document.addEventListener('click',onClick);
   document.addEventListener('change',onChange);
   document.addEventListener('keydown',onKey);
+  document.addEventListener('focusin',onDateFocusIn);
   $('#fileInput').addEventListener('change',e=>{
     if(e.target.files&&e.target.files[0])importFile(e.target.files[0]);
     e.target.value='';
