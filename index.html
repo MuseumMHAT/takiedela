@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v3.6</title>
+<title>Такие дела — выдачи и проекты · v3.7</title>
 <meta name="description" content="Персональный трекер музейных выдач, договоров и музейных проектов: этапы, автодедлайны, контакты, исполнители и заметки.">
 <meta name="theme-color" content="#c14e24">
 <meta property="og:title" content="Такие дела — трекер музейных выдач">
@@ -522,7 +522,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 3.6 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 3.7 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -634,12 +634,14 @@ function dirChipHtml(p){
   return '<span class="dirchip '+cls+'" title="Направление проекта">'+(labels[d]||'Выдача')+'</span>';
 }
 
-const DIR_CYCLE=['all','dogovory','vydacha'];
-const DIR_FILTER_LABEL={all:'все проекты',dogovory:'договоры',vydacha:'выдача'};
+/* фильтр по направлению: все проекты → договоры → выдача → музейное */
+const DIR_CYCLE=['all','dogovory','vydacha','museum'];
+const DIR_FILTER_LABEL={all:'все проекты',dogovory:'договоры',vydacha:'выдача',museum:'музейное'};
 function dirFilterDot(){
   if(ui.dirFilter==='dogovory')return 'var(--accent)';
   if(ui.dirFilter==='vydacha')return 'var(--green)';
-  return 'conic-gradient(var(--green) 0 50%, var(--accent) 50% 100%)';
+  if(ui.dirFilter==='museum')return 'var(--blue)';
+  return 'conic-gradient(var(--green) 0 33%, var(--accent) 33% 66%, var(--blue) 66% 100%)';
 }
 
 const MERGED_STAGE={
@@ -981,7 +983,7 @@ function projectCard(p,i){
   const activeTask=firstActiveTask(p);
   let info='';
   if(contact)info+='<div class="pcard-contact" title="Контактное лицо">'+I.user+'<span>'+esc(contact.name)+'</span></div>';
-  if(activeTask)info+='<div class="pcard-task" title="Текущая задача">'+I.up.replace('M12 19V5m0 0l-6 6m6-6l6 6','M5 12h14')+'<span>'+esc(activeTask)+'</span></div>';
+  if(activeTask)info+='<div class="pcard-task" title="Текущая задача">'+I.check+'<span>'+esc(activeTask)+'</span></div>';
   else info+='<div class="pcard-task done-all" title="Все задачи выполнены">'+I.check+'<span>Все задачи выполнены</span></div>';
   return '<article class="pcard rise '+cardCls+(ph.key==='done'?' is-done':'')+'" style="animation-delay:'+Math.min(i*70,420)+'ms" data-action="open-project" data-id="'+p.id+'">'
    +'<div class="pcard-top"><span class="pcard-left">'+dirChipHtml(p)
@@ -1014,7 +1016,7 @@ function vDashboard(){
   }
   const filterNext=DIR_FILTER_LABEL[DIR_CYCLE[(DIR_CYCLE.indexOf(ui.dirFilter)+1)%DIR_CYCLE.length]];
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v3.6</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v3.7</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Выдачи, договоры и музейные проекты: чек-листы и дедлайны, которые считаются сами — от ключевой даты проекта.</p></section>'
    +'<section class="stats rise" style="animation-delay:70ms">'
@@ -1724,7 +1726,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'3.6',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'3.7',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
