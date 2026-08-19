@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v3.8</title>
+<title>Такие дела — выдачи и проекты · v3.9</title>
 <meta name="description" content="Персональный трекер музейных выдач, договоров и музейных проектов: этапы, автодедлайны, контакты, исполнители и заметки.">
 <meta name="theme-color" content="#c14e24">
 <meta property="og:title" content="Такие дела — трекер музейных выдач">
@@ -219,13 +219,14 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 .pcard-title{font:700 21px/1.2 var(--display);margin:2px 0 8px;transition:color .2s}
 .pcard:hover .pcard-title{color:var(--accent)}
 .pcard-info{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
-.pcard-contact,.pcard-task{display:flex;align-items:center;gap:6px;font-size:12.5px;min-width:0}
-.pcard-contact{color:var(--ink2)}
+.pcard-contact{background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;
+  font-size:12.5px;color:var(--ink2);min-width:0;padding:0;text-align:left}
 .pcard-contact svg{flex:none;color:var(--mut)}
-.pcard-task{color:var(--accent)}
+.pcard-contact span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcard-contact:hover span{color:var(--accent);text-decoration:underline}
+.pcard-task{display:flex;align-items:center;gap:6px;font-size:12.5px;min-width:0;color:var(--accent)}
 .pcard-task svg{flex:none;color:var(--accent)}
-.pcard-contact span,.pcard-task span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.pcard-task span{font-weight:600}
+.pcard-task span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:600}
 .pcard-task.done-all{color:var(--green)}
 .pcard-task.done-all svg{color:var(--green)}
 .pcard-dv{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink2);margin-bottom:11px;flex-wrap:wrap}
@@ -404,6 +405,14 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 .attach-item small{color:var(--mut);font-size:11.5px;display:block}
 .attach-item input{accent-color:var(--accent);width:16px;height:16px;flex:none}
 
+/* ---------- contact details ---------- */
+.det-pos{color:var(--ink2);margin:2px 0 8px}
+.det-orgs{margin:6px 0}
+.det-orgs .chip{margin:2px 4px 2px 0}
+.det-line{margin:4px 0;color:var(--ink2)}
+.det-note{margin:8px 0;color:var(--ink2);background:var(--surface2);border-radius:8px;padding:8px 10px}
+.det-proj{margin-top:8px;color:var(--mut);font-size:12.5px}
+
 /* ---------- notes ---------- */
 .composer{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);
   padding:14px 16px;box-shadow:var(--shadow);margin-bottom:18px}
@@ -524,7 +533,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 3.8 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 3.9 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -590,8 +599,6 @@ function sortByPrio(list){
     return (a.dv||'9999-12-31').localeCompare(b.dv||'9999-12-31');
   });
 }
-/* авто-повышение важности: когда наступила дата «сделать важным», проект получает «важное»
-   (однократно для каждой указанной даты и только если текущая важность ниже «важного») */
 function applyAutoPriority(){
   const T=todayISO();
   let changed=false;
@@ -651,7 +658,6 @@ function dirChipHtml(p){
   return '<span class="dirchip '+cls+'" title="Направление проекта">'+(labels[d]||'Выдача')+'</span>';
 }
 
-/* фильтр по направлению: все проекты → договоры → выдача → музейное */
 const DIR_CYCLE=['all','dogovory','vydacha','museum'];
 const DIR_FILTER_LABEL={all:'все проекты',dogovory:'договоры',vydacha:'выдача',museum:'музейное'};
 function dirFilterDot(){
@@ -693,6 +699,10 @@ const STAGES_VYDACHA=[
    'Определён срок / место упаковки и погрузки.',
    'Заказан пропуск на автотранспорт.',
    'Акты подписаны. Предметы упакованы и загружены.']},
+ {t:'Доставка и монтаж',a:'dv',off:3,tasks:[
+   'Курьер сопроводил груз до площадки',
+   'Распаковка и сверка по акту на месте',
+   'Монтаж завершён, витрины приняты']},
  {t:'Возврат предметов',a:'ret',off:0,tasks:[
    'Дата возврата согласована.',
    'Пропуск на транспорт заказан.',
@@ -977,6 +987,24 @@ function firstActiveTask(p){
   for(const st of p.stages){for(const t of st.tasks){if(!t.done)return t.text;}}
   return null;
 }
+/* сортировка контактов: по фамилии, затем по организации */
+function surnameOf(name){
+  const parts=(name||'').trim().split(/\s+/).filter(Boolean);
+  if(!parts.length)return '';
+  return parts[parts.length-1].toLowerCase();
+}
+function firstOrgOf(c){
+  if(!c.orgIds||!c.orgIds.length)return '';
+  const o=state.orgs.find(o=>o.id===c.orgIds[0]);
+  return o?o.name.toLowerCase():'';
+}
+function sortContacts(list){
+  return list.slice().sort((a,b)=>{
+    const s=surnameOf(a.name).localeCompare(surnameOf(b.name),'ru');
+    if(s!==0)return s;
+    return firstOrgOf(a).localeCompare(firstOrgOf(b),'ru');
+  });
+}
 
 /* ================= дашборд ================= */
 function dashStats(pool){
@@ -999,7 +1027,7 @@ function projectCard(p,i){
   const contact=firstContactOf(p);
   const activeTask=firstActiveTask(p);
   let info='';
-  if(contact)info+='<div class="pcard-contact" title="Контактное лицо">'+I.user+'<span>'+esc(contact.name)+'</span></div>';
+  if(contact)info+='<button class="pcard-contact" data-action="open-contact" data-id="'+contact.id+'" title="Открыть карточку контакта">'+I.user+'<span>'+esc(contact.name)+'</span></button>';
   if(activeTask)info+='<div class="pcard-task" title="Текущая задача">'+I.check+'<span>'+esc(activeTask)+'</span></div>';
   else info+='<div class="pcard-task done-all" title="Все задачи выполнены">'+I.check+'<span>Все задачи выполнены</span></div>';
   return '<article class="pcard rise '+cardCls+(ph.key==='done'?' is-done':'')+'" style="animation-delay:'+Math.min(i*70,420)+'ms" data-action="open-project" data-id="'+p.id+'">'
@@ -1033,7 +1061,7 @@ function vDashboard(){
   }
   const filterNext=DIR_FILTER_LABEL[DIR_CYCLE[(DIR_CYCLE.indexOf(ui.dirFilter)+1)%DIR_CYCLE.length]];
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v3.8</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v3.9</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Выдачи, договоры и музейные проекты: чек-листы и дедлайны, которые считаются сами — от ключевой даты проекта.</p></section>'
    +'<section class="stats rise" style="animation-delay:70ms">'
@@ -1316,7 +1344,7 @@ function orgRow(o){
    +'<button class="iconbtn sm" title="Отвязать от проекта" data-action="attach-remove" data-kind="org" data-id="'+o.id+'">'+I.x+'</button></div></div>';
 }
 function contactRow(c){
-  const orgNames=state.orgs.filter(o=>c.orgIds.includes(o.id)).map(o=>o.name).join(', ');
+  const orgNames=state.orgs.filter(o=>c.orgIds&&c.orgIds.includes(o.id)).map(o=>o.name).join(', ');
   return '<div class="link-row"><div class="lr-main"><b>'+esc(c.name)+'</b>'
    +'<small>'+esc([c.position,orgNames].filter(Boolean).join(' · '))+'</small>'
    +((c.phone||c.email)?'<small>'+(c.phone?'☎ '+esc(c.phone):'')+(c.phone&&c.email?' · ':'')+(c.email?'✉ '+esc(c.email):'')+'</small>':'')
@@ -1328,7 +1356,12 @@ function attachPanel(kind,p){
   const arr=kind==='org'?p.orgIds:p.contactIds;
   if(!list.length)return '<div class="attach-panel"><p class="empty">Справочник пуст — <button class="linkbtn" data-action="goto-book">добавить →</button></p></div>';
   return '<div class="attach-panel">'+list.map(item=>{
-    const sub=kind==='org'?(item.city||item.type||''):(item.position||'');
+    let sub;
+    if(kind==='org'){sub=item.city||item.type||'';}
+    else{
+      const orgs=state.orgs.filter(o=>item.orgIds&&item.orgIds.includes(o.id)).map(o=>o.name).join(', ');
+      sub=[item.position,orgs].filter(Boolean).join(' · ');
+    }
     return '<label class="attach-item"><input type="checkbox" data-action="attach-toggle" data-kind="'+kind+'" data-id="'+item.id+'"'+(arr.includes(item.id)?' checked':'')+'>'
      +'<span><b>'+esc(item.name)+'</b><small>'+esc(sub)+'</small></span></label>';
   }).join('')+'</div>';
@@ -1381,7 +1414,7 @@ function addNote(){
 
 /* ================= справочник ================= */
 function orgBookCard(o,i){
-  const cnt=state.contacts.filter(c=>c.orgIds.includes(o.id)).length;
+  const cnt=state.contacts.filter(c=>c.orgIds&&c.orgIds.includes(o.id)).length;
   const used=state.projects.filter(p=>p.orgIds.includes(o.id)).length;
   return '<article class="bcard rise" style="animation-delay:'+Math.min(i*60,360)+'ms">'
    +'<div class="bcard-head"><h3>'+esc(o.name)+'</h3>'+(o.type?'<span class="chip c-type">'+esc(o.type)+'</span>':'')+'</div>'
@@ -1394,7 +1427,7 @@ function orgBookCard(o,i){
    +'<button class="iconbtn danger-h" title="Удалить" data-action="org-del" data-id="'+o.id+'">'+I.trash+'</button></div></article>';
 }
 function contactBookCard(c,i){
-  const orgs=state.orgs.filter(o=>c.orgIds.includes(o.id));
+  const orgs=state.orgs.filter(o=>c.orgIds&&c.orgIds.includes(o.id));
   return '<article class="bcard rise" style="animation-delay:'+Math.min(i*60,360)+'ms">'
    +'<div class="bcard-head"><h3>'+esc(c.name)+'</h3></div>'
    +(c.position?'<p class="bline">'+esc(c.position)+'</p>':'')
@@ -1420,7 +1453,7 @@ function vBook(){
   const o=state.orgs,c=state.contacts,ex=state.executors;
   let body='';
   if(ui.bookTab==='orgs')body=o.map(orgBookCard).join('')||'<div class="empty-big"><p>Организаций пока нет.</p></div>';
-  else if(ui.bookTab==='contacts')body=c.map(contactBookCard).join('')||'<div class="empty-big"><p>Контактов пока нет.</p></div>';
+  else if(ui.bookTab==='contacts')body=sortContacts(c).map(contactBookCard).join('')||'<div class="empty-big"><p>Контактов пока нет.</p></div>';
   else body=ex.map(execBookCard).join('')||'<div class="empty-big"><p>Исполнителей пока нет.</p><p style="margin-top:6px;font-size:13px;color:var(--mut)">Это коллеги, которых вы назначаете на задачи в проектах.</p></div>';
   return '<div class="wrap">'
    +'<section class="book-head rise"><div><p class="kicker">Справочник</p><h1>Партнёры и команда</h1>'
@@ -1492,6 +1525,21 @@ function askConfirm(text,ok){
    +'<button class="btn danger" id="confirmOk">Удалить</button></div>','modal-sm');
   $('#confirmOk').addEventListener('click',()=>{closeModal();ok();});
   $('#confirmOk').focus();
+}
+function openContactDetails(c){
+  const orgs=state.orgs.filter(o=>c.orgIds&&c.orgIds.includes(o.id));
+  const projects=state.projects.filter(p=>p.contactIds&&p.contactIds.includes(c.id));
+  openModal(
+    '<h3>'+esc(c.name)+'</h3>'
+    +(c.position?'<p class="det-pos">'+esc(c.position)+'</p>':'')
+    +(orgs.length?'<p class="det-orgs">'+orgs.map(o=>'<span class="chip c-type">'+esc(o.name)+'</span>').join(' ')+'</p>':'')
+    +(c.phone?'<p class="det-line">☎ '+esc(c.phone)+'</p>':'')
+    +(c.email?'<p class="det-line">✉ '+esc(c.email)+'</p>':'')
+    +(c.note?'<p class="det-note">'+esc(c.note)+'</p>':'')
+    +(projects.length?'<p class="det-proj">В проектах: '+projects.map(pp=>esc(pp.name)).join(', ')+'</p>':'')
+    +'<div class="modal-actions"><button class="btn ghost" data-action="modal-close">Закрыть</button>'
+    +'<button class="btn ghost" data-action="contact-edit" data-id="'+c.id+'">'+I.pen+' Изменить</button></div>'
+  ,'modal-sm');
 }
 function openNewProject(){
   npDir='vydacha';
@@ -1748,7 +1796,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'3.8',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'3.9',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
@@ -1801,6 +1849,7 @@ function onClick(e){
     case 'theme-toggle':toggleTheme();break;
     case 'new-project':openNewProject();break;
     case 'open-project':ui.view='project';ui.projectId=id;ui.tab='stages';ui.openAttach=null;ui.addingStage=null;ui.editStage=null;ui.editTask=null;renderApp();window.scrollTo(0,0);break;
+    case 'open-contact':{const c=state.contacts.find(x=>x.id===id);if(c)openContactDetails(c);break;}
     case 'back':ui.view='dash';renderApp();window.scrollTo(0,0);break;
     case 'rename-start':startRename();break;
     case 'delete-project':deleteProject();break;
