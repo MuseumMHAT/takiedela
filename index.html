@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v3.9</title>
+<title>Такие дела — выдачи и проекты · v4.1</title>
 <meta name="description" content="Персональный трекер музейных выдач, договоров и музейных проектов: этапы, автодедлайны, контакты, исполнители и заметки.">
 <meta name="theme-color" content="#c14e24">
 <meta property="og:title" content="Такие дела — трекер музейных выдач">
@@ -413,6 +413,19 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 .det-note{margin:8px 0;color:var(--ink2);background:var(--surface2);border-radius:8px;padding:8px 10px}
 .det-proj{margin-top:8px;color:var(--mut);font-size:12.5px}
 
+/* ---------- search ---------- */
+.search-box{position:relative;margin-bottom:16px}
+.search-box input{width:100%;padding:10px 40px 10px 14px;border:1px solid var(--line);border-radius:10px;
+  background:var(--surface);font:400 14px var(--body);color:var(--ink);outline:none;transition:.15s}
+[data-theme="dark"] .search-box input{color-scheme:dark}
+.search-box input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.search-box svg{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--mut);pointer-events:none}
+.search-box .clear-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;
+  color:var(--mut);cursor:pointer;padding:4px;display:none}
+.search-box .clear-btn:hover{color:var(--accent)}
+.search-box.has-value svg{display:none}
+.search-box.has-value .clear-btn{display:block}
+
 /* ---------- notes ---------- */
 .composer{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);
   padding:14px 16px;box-shadow:var(--shadow);margin-bottom:18px}
@@ -533,7 +546,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 3.9 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 4.1 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -574,7 +587,8 @@ const I={
   user:svg16('<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/>'),
   up:svg16('<path d="M12 19V5m0 0l-6 6m6-6l6 6"/>'),
   down:svg16('<path d="M12 5v14m0 0l6-6m-6 6l-6-6"/>'),
-  sort:svg('<path d="M7 4v16m0 0l-3-3m3 3l3-3M17 20V4m0 0l-3 3m3-3l3 3"/>')
+  sort:svg('<path d="M7 4v16m0 0l-3-3m3 3l3-3M17 20V4m0 0l-3 3m3-3l3 3"/>'),
+  search:svg('<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>')
 };
 
 /* ================= приоритеты ================= */
@@ -749,7 +763,7 @@ const LS_SORT='takiedela_sortprio';
 const LS_DIRFILTER='takiedela_dirfilter';
 const LS_THEME='takiedela_theme';
 let state=null;
-const ui={view:'dash',projectId:null,tab:'stages',openAttach:null,addingStage:null,editStage:null,editTask:null,noteColor:'sun',noteDraft:'',editNote:null,bookTab:'orgs',sortByPrio:false,dirFilter:'all',quickContact:false};
+const ui={view:'dash',projectId:null,tab:'stages',openAttach:null,addingStage:null,editStage:null,editTask:null,noteColor:'sun',noteDraft:'',editNote:null,bookTab:'orgs',sortByPrio:false,dirFilter:'all',quickContact:false,contactSearch:'',projectSearch:''};
 let contactModalOrgs=[];
 let npDir='vydacha';
 const cur=()=>state.projects.find(p=>p.id===ui.projectId)||null;
@@ -987,7 +1001,6 @@ function firstActiveTask(p){
   for(const st of p.stages){for(const t of st.tasks){if(!t.done)return t.text;}}
   return null;
 }
-/* сортировка контактов: по фамилии, затем по организации */
 function surnameOf(name){
   const parts=(name||'').trim().split(/\s+/).filter(Boolean);
   if(!parts.length)return '';
@@ -1003,6 +1016,33 @@ function sortContacts(list){
     const s=surnameOf(a.name).localeCompare(surnameOf(b.name),'ru');
     if(s!==0)return s;
     return firstOrgOf(a).localeCompare(firstOrgOf(b),'ru');
+  });
+}
+function filterContacts(list,query){
+  if(!query)return list;
+  const q=query.toLowerCase().trim();
+  return list.filter(c=>{
+    if(c.name.toLowerCase().includes(q))return true;
+    if(c.position&&c.position.toLowerCase().includes(q))return true;
+    if(c.phone&&c.phone.includes(q))return true;
+    if(c.email&&c.email.toLowerCase().includes(q))return true;
+    const orgs=state.orgs.filter(o=>c.orgIds&&c.orgIds.includes(o.id));
+    if(orgs.some(o=>o.name.toLowerCase().includes(q)))return true;
+    return false;
+  });
+}
+function filterProjects(list,query){
+  if(!query)return list;
+  const q=query.toLowerCase().trim();
+  return list.filter(p=>{
+    if(p.name.toLowerCase().includes(q))return true;
+    const dirLabel=DIR_FILTER_LABEL[p.direction||'vydacha']||'Выдача';
+    if(dirLabel.toLowerCase().includes(q))return true;
+    const org=state.orgs.find(o=>o.id===p.orgId);
+    if(org&&org.name.toLowerCase().includes(q))return true;
+    const contacts=state.contacts.filter(c=>p.contactIds&&p.contactIds.includes(c.id));
+    if(contacts.some(c=>c.name.toLowerCase().includes(q)))return true;
+    return false;
   });
 }
 
@@ -1042,16 +1082,16 @@ function projectCard(p,i){
    +'<div class="pcard-foot"><span>'+st.done+'/'+st.total+' задач · '+st.pct+'%</span>'+footRight+'</div></article>';
 }
 function vDashboard(){
-  const pool=state.projects.filter(p=>ui.dirFilter==='all'||(p.direction||'vydacha')===ui.dirFilter);
-  const s=dashStats(pool);
-  let act=pool.filter(p=>projPhase(p).key!=='done');
-  let fin=pool.filter(p=>projPhase(p).key==='done');
+  const pool=filterProjects(state.projects,ui.projectSearch);
+  const filteredPool=pool.filter(p=>ui.dirFilter==='all'||(p.direction||'vydacha')===ui.dirFilter);
+  const s=dashStats(filteredPool);
+  let act=filteredPool.filter(p=>projPhase(p).key!=='done');
+  let fin=filteredPool.filter(p=>projPhase(p).key==='done');
   if(ui.sortByPrio){act=sortByPrio(act);fin=sortByPrio(fin);}
   let cards='';
-  if(!state.projects.length){
-    cards='<div class="empty-big"><p>Проектов пока нет.</p><button class="btn primary" data-action="new-project">'+I.plus+' Создать первый</button></div>';
-  }else if(!pool.length){
-    cards='<div class="empty-big"><p>По направлению «'+DIR_FILTER_LABEL[ui.dirFilter]+'» проектов нет.</p></div>';
+  if(!filteredPool.length){
+    cards='<div class="empty-big"><p>'+(ui.projectSearch||ui.dirFilter!=='all'?'Ничего не найдено.':'Проектов пока нет.')+'</p>'
+      +(!ui.projectSearch&&ui.dirFilter==='all'?'<button class="btn primary" data-action="new-project">'+I.plus+' Создать первый</button>':'')+'</div>';
   }else{
     cards=act.map((p,i)=>projectCard(p,i)).join('');
     if(fin.length){
@@ -1061,9 +1101,14 @@ function vDashboard(){
   }
   const filterNext=DIR_FILTER_LABEL[DIR_CYCLE[(DIR_CYCLE.indexOf(ui.dirFilter)+1)%DIR_CYCLE.length]];
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v3.9</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v4.1</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Выдачи, договоры и музейные проекты: чек-листы и дедлайны, которые считаются сами — от ключевой даты проекта.</p></section>'
+   +'<div class="search-box'+(ui.projectSearch?' has-value':'')+'">'
+   +'<input type="text" id="projectSearchInput" placeholder="Поиск по названию, направлению, партнёру, контакту…" value="'+esc(ui.projectSearch)+'">'
+   +I.search
+   +'<button class="clear-btn" data-action="clear-project-search" title="Очистить поиск">'+I.x+'</button>'
+   +'</div>'
    +'<section class="stats rise" style="animation-delay:70ms">'
    +'<button class="stat stat-btn'+(ui.dirFilter!=='all'?' on':'')+'" data-action="dir-filter" title="Фильтр по направлению: следующее значение — «'+filterNext+'»">'
    +'<span class="s-ic"><i class="f-dot" style="background:'+dirFilterDot()+'"></i></span>'
@@ -1453,7 +1498,16 @@ function vBook(){
   const o=state.orgs,c=state.contacts,ex=state.executors;
   let body='';
   if(ui.bookTab==='orgs')body=o.map(orgBookCard).join('')||'<div class="empty-big"><p>Организаций пока нет.</p></div>';
-  else if(ui.bookTab==='contacts')body=sortContacts(c).map(contactBookCard).join('')||'<div class="empty-big"><p>Контактов пока нет.</p></div>';
+  else if(ui.bookTab==='contacts'){
+    const filtered=filterContacts(c,ui.contactSearch);
+    const sorted=sortContacts(filtered);
+    body='<div class="search-box'+(ui.contactSearch?' has-value':'')+'">'
+      +'<input type="text" id="contactSearchInput" placeholder="Поиск по имени, должности, организации, телефону, email…" value="'+esc(ui.contactSearch)+'">'
+      +I.search
+      +'<button class="clear-btn" data-action="clear-contact-search" title="Очистить поиск">'+I.x+'</button>'
+      +'</div>'
+      +(sorted.length?sorted.map(contactBookCard).join(''):'<div class="empty-big"><p>Контакты не найдены.</p></div>');
+  }
   else body=ex.map(execBookCard).join('')||'<div class="empty-big"><p>Исполнителей пока нет.</p><p style="margin-top:6px;font-size:13px;color:var(--mut)">Это коллеги, которых вы назначаете на задачи в проектах.</p></div>';
   return '<div class="wrap">'
    +'<section class="book-head rise"><div><p class="kicker">Справочник</p><h1>Партнёры и команда</h1>'
@@ -1796,7 +1850,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'3.9',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'4.1',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
@@ -1931,6 +1985,8 @@ function onClick(e){
     }
     case 'note-cancel':ui.editNote=null;refreshTab();break;
     case 'note-del':askConfirm('Удалить заметку?',()=>{state.notes=state.notes.filter(x=>x.id!==id);persist();refreshTab();toast('Заметка удалена');});break;
+    case 'clear-contact-search':ui.contactSearch='';renderApp();break;
+    case 'clear-project-search':ui.projectSearch='';renderApp();break;
   }
 }
 function onChange(e){
@@ -1968,6 +2024,40 @@ function onChange(e){
     if(el.checked&&i===-1)arr.push(el.dataset.id);
     if(!el.checked&&i>-1)arr.splice(i,1);
     persist();refreshTab();
+  }else if(el.id==='contactSearchInput'){
+    ui.contactSearch=el.value;
+    const grid=document.querySelector('.bgrid');
+    if(grid){
+      const filtered=filterContacts(state.contacts,ui.contactSearch);
+      const sorted=sortContacts(filtered);
+      grid.innerHTML=sorted.length?sorted.map(contactBookCard).join(''):'<div class="empty-big"><p>Контакты не найдены.</p></div>';
+      const box=document.querySelector('.search-box');
+      if(box)box.classList.toggle('has-value',!!ui.contactSearch);
+    }
+  }else if(el.id==='projectSearchInput'){
+    ui.projectSearch=el.value;
+    const grid=document.querySelector('.pgrid');
+    if(grid){
+      const pool=filterProjects(state.projects,ui.projectSearch);
+      const filteredPool=pool.filter(p=>ui.dirFilter==='all'||(p.direction||'vydacha')===ui.dirFilter);
+      let act=filteredPool.filter(p=>projPhase(p).key!=='done');
+      let fin=filteredPool.filter(p=>projPhase(p).key==='done');
+      if(ui.sortByPrio){act=sortByPrio(act);fin=sortByPrio(fin);}
+      let cards='';
+      if(!filteredPool.length){
+        cards='<div class="empty-big"><p>'+(ui.projectSearch||ui.dirFilter!=='all'?'Ничего не найдено.':'Проектов пока нет.')+'</p>'
+          +(!ui.projectSearch&&ui.dirFilter==='all'?'<button class="btn primary" data-action="new-project">'+I.plus+' Создать первый</button>':'')+'</div>';
+      }else{
+        cards=act.map((p,i)=>projectCard(p,i)).join('');
+        if(fin.length){
+          cards+='<div class="pgrid-divider">✳ Выполнено · '+fin.length+'</div>';
+          cards+=fin.map((p,i)=>projectCard(p,i)).join('');
+        }
+      }
+      grid.innerHTML=cards;
+      const box=document.querySelector('.search-box');
+      if(box)box.classList.toggle('has-value',!!ui.projectSearch);
+    }
   }
 }
 function onKey(e){
