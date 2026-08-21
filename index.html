@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v4.2</title>
+<title>Такие дела — выдачи и проекты · v4.3</title>
 <meta name="description" content="Персональный трекер музейных выдач, договоров и музейных проектов: этапы, автодедлайны, контакты, исполнители и заметки.">
 <meta name="theme-color" content="#c14e24">
 <meta property="og:title" content="Такие дела — трекер музейных выдач">
@@ -120,7 +120,7 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .c-amber{background:var(--amber-soft);color:var(--amber)}
 .c-red{background:var(--red-soft);color:var(--red)}
 .c-muted{background:var(--line-soft);color:var(--ink2)}
-.c-pause{background:var(--line-soft);color:var(--ink2)}
+.c-archive{background:rgba(107,99,85,.14);color:#6b6355;border:1px solid rgba(107,99,85,.28)}
 .c-type{background:var(--surface2);color:var(--ink2);border:1px solid var(--line-soft)}
 .c-exec{background:var(--blue-soft);color:var(--blue)}
 .dirchip{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:800;letter-spacing:.06em;
@@ -146,7 +146,8 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .p-important{background:var(--amber-soft);color:var(--amber);border-color:rgba(176,122,30,.32)}
 .p-normal{background:var(--blue-soft);color:var(--blue);border-color:rgba(65,98,142,.26)}
 .p-background{background:rgba(149,138,112,.15);color:var(--mut);border-color:rgba(149,138,112,.32)}
-.p-pause{background:var(--line-soft);color:var(--ink2);border-color:var(--line)}
+.p-pause{background:rgba(107,99,85,.14);color:#6b6355;border-color:rgba(107,99,85,.28)}
+.p-archive{background:rgba(107,99,85,.22);color:#5a5248;border-color:rgba(107,99,85,.4)}
 .prio-backdrop{position:fixed;inset:0;z-index:95}
 .prio-menu{position:fixed;z-index:96;background:var(--surface);border:1px solid var(--line);border-radius:11px;
   box-shadow:0 16px 36px -12px rgba(0,0,0,.35);padding:5px;width:176px;animation:pop .18s cubic-bezier(.2,.9,.3,1.15)}
@@ -204,13 +205,9 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .pcard.pc-dog::before{background:linear-gradient(90deg,var(--accent),#e0854f)}
 .pcard.pc-museum{background:#e3edf7;border-color:rgba(65,98,142,.22)}
 .pcard.pc-museum::before{background:linear-gradient(90deg,var(--blue),#7fa3cc)}
-.pcard.pc-pause{background:var(--surface2);border-color:var(--line)}
-.pcard.pc-pause::before{background:linear-gradient(90deg,var(--mut),var(--mut))}
-[data-theme="dark"] .pcard.pc-vyd{background:rgba(90,165,122,.10);border-color:rgba(90,165,122,.3)}
-[data-theme="dark"] .pcard.pc-dog{background:rgba(217,122,79,.10);border-color:rgba(217,122,79,.3)}
-[data-theme="dark"] .pcard.pc-museum{background:rgba(106,143,185,.10);border-color:rgba(106,143,185,.3)}
-.pcard.is-done{opacity:.78}
-.pcard.is-done:hover{opacity:1}
+.pcard.pc-archive{background:var(--surface2);border-color:rgba(107,99,85,.28);opacity:.72}
+.pcard.pc-archive::before{background:linear-gradient(90deg,#6b6355,#8a7f6a)}
+.pcard.pc-archive:hover{opacity:.9}
 .pcard-top{display:flex;justify-content:flex-end;gap:6px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
 .pcard-left{margin-right:auto;display:inline-flex;gap:6px;align-items:center;min-width:0;max-width:62%}
 .pcard-left .orgchip{max-width:170px}
@@ -223,7 +220,7 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 .orgchip.dashed{border-style:dashed;color:var(--mut)}
 .orgchip.dashed:hover{color:var(--blue);border-color:var(--blue)}
 .chip-caret{font-size:9px;opacity:.65;margin-left:2px}
-.pcard-title{font:700 21px/1.2 var(--display);margin:2px 0 8px;transition:color .2s}
+.pcard-title{font:700 21px/1.2 var(--display);margin:2px 0 10px;transition:color .2s}
 .pcard:hover .pcard-title{color:var(--accent)}
 .pcard-info{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
 .pcard-contact{background:none;border:none;cursor:pointer;display:flex;align-items:center;gap:6px;
@@ -253,6 +250,8 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 .pgrid-divider{grid-column:1/-1;display:flex;align-items:center;gap:12px;color:var(--mut);
   font-weight:700;font-size:13px;letter-spacing:.1em;text-transform:uppercase;margin:12px 0 0}
 .pgrid-divider::before,.pgrid-divider::after{content:'';flex:1;height:1px;background:var(--line)}
+.pgrid-divider.archive{color:#6b6355}
+.pgrid-divider.archive::before,.pgrid-divider.archive::after{background:rgba(107,99,85,.35)}
 
 /* ---------- project view ---------- */
 .proj-head{padding-top:24px}
@@ -553,7 +552,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 4.2 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 4.3 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -595,8 +594,8 @@ const I={
   up:svg16('<path d="M12 19V5m0 0l-6 6m6-6l6 6"/>'),
   down:svg16('<path d="M12 5v14m0 0l6-6m-6 6l-6-6"/>'),
   sort:svg('<path d="M7 4v16m0 0l-3-3m3 3l3-3M17 20V4m0 0l-3 3m3-3l3 3"/>'),
-  search:svg('<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>'),
-  flag:svg('<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>')
+  flag:svg('<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>'),
+  archive:svg16('<path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/>')
 };
 
 /* ================= приоритеты ================= */
@@ -605,11 +604,12 @@ const PRIO_LEVELS=[
   {key:'important', label:'важное',  color:'#a9761c'},
   {key:'normal',    label:'штатное', color:'#41628e'},
   {key:'background',label:'фоновое', color:'#95896f'},
-  {key:'pause',     label:'пауза',   color:'#6b6355'}
+  {key:'pause',     label:'пауза',   color:'#6b6355'},
+  {key:'archive',   label:'архив',   color:'#5a5248'}
 ];
-const PRIO_ORDER={fire:0,important:1,normal:2,background:3,pause:4};
-const PRIO_CYCLE=['all','fire','important','normal','background','pause'];
-const PRIO_FILTER_LABEL={all:'все приоритеты',fire:'горит',important:'важное',normal:'штатное',background:'фоновое',pause:'пауза'};
+const PRIO_ORDER={fire:0,important:1,normal:2,background:3,pause:4,archive:5};
+const PRIO_CYCLE=['all','fire','important','normal','background','pause','archive'];
+const PRIO_FILTER_LABEL={all:'все приоритеты',fire:'горит',important:'важное',normal:'штатное',background:'фоновое',pause:'пауза',archive:'архив'};
 const prioOf=p=>PRIO_LEVELS.find(l=>l.key===(p.priority||'normal'))||PRIO_LEVELS[2];
 function prioChipHtml(p){
   const lv=prioOf(p);
@@ -623,13 +623,19 @@ function sortByPrio(list){
     return (a.dv||'9999-12-31').localeCompare(b.dv||'9999-12-31');
   });
 }
+/* проект считается «архивным» если приоритет archive ИЛИ 100% выполнен */
+function isArchived(p){
+  if(p.priority==='archive')return true;
+  const st=projStats(p);
+  return st.total>0&&st.done===st.total;
+}
 function applyAutoPriority(){
   const T=todayISO();
   let changed=false;
   state.projects.forEach(p=>{
     const st=projStats(p);
-    if(st.total&&st.done===st.total){
-      if(p.priority!=='pause'){p.priority='pause';changed=true;}
+    if(st.total>0&&st.done===st.total){
+      if(p.priority!=='archive'){p.priority='archive';changed=true;}
     }else if(p.importantDate && T>=p.importantDate && p.importantAppliedDate!==p.importantDate){
       const curIdx=PRIO_ORDER[p.priority||'normal']??2;
       if(curIdx>PRIO_ORDER['important']){p.priority='important';changed=true;}
@@ -959,7 +965,7 @@ function flashSave(){
 function projStats(p){let done=0,total=0;p.stages.forEach(s=>s.tasks.forEach(t=>{total++;if(t.done)done++;}));return{done,total,pct:total?Math.round(done/total*100):0};}
 function projPhase(p){
   const st=projStats(p),T=todayISO(),single=isDog(p)||isMuseum(p);
-  if(st.total&&st.done===st.total)return{key:'pause',cls:'c-pause',label:'фоновое'};
+  if(isArchived(p))return{key:'archive',cls:'c-archive',label:'архив'};
   if(p.dv&&T>p.dv){
     if(single)return{key:'late',cls:'c-red',label:'Просрочен'};
     if(p.ret&&T>p.ret)return{key:'late',cls:'c-amber',label:'Возврат · проверка'};
@@ -1080,14 +1086,15 @@ function projectCard(p,i){
   else if(dog)footRight='<span class="dim2">цифровые копии</span>';
   else if(museum)footRight='<span class="dim2">музейный проект</span>';
   else footRight='<span class="dim2">возврат '+fmtShort(p.ret)+'</span>';
-  const cardCls=museum?'pc-museum':(dog?'pc-dog':'pc-vyd');
+  const archived=isArchived(p);
+  const cardCls=archived?'pc-archive':(museum?'pc-museum':(dog?'pc-dog':'pc-vyd'));
   const contact=firstContactOf(p);
   const activeTask=firstActiveTask(p);
   let info='';
   if(contact)info+='<button class="pcard-contact" data-action="open-contact" data-id="'+contact.id+'" title="Открыть карточку контакта">'+I.user+'<span>'+esc(contact.name)+'</span></button>';
   if(activeTask)info+='<div class="pcard-task" title="Текущая задача">'+I.check+'<span>'+esc(activeTask)+'</span></div>';
   else info+='<div class="pcard-task done-all" title="Все задачи выполнены">'+I.check+'<span>Все задачи выполнены</span></div>';
-  return '<article class="pcard rise '+cardCls+(ph.key==='pause'?' pc-pause':'')+'" style="animation-delay:'+Math.min(i*70,420)+'ms" data-action="open-project" data-id="'+p.id+'">'
+  return '<article class="pcard rise '+cardCls+'" style="animation-delay:'+Math.min(i*70,420)+'ms" data-action="open-project" data-id="'+p.id+'">'
    +'<div class="pcard-top"><span class="pcard-left">'+dirChipHtml(p)
    +(org?'<span class="orgchip">'+esc(org.name)+'</span>':'<span class="orgchip">без партнёра</span>')+'</span>'
    +prioChipHtml(p)
@@ -1102,24 +1109,25 @@ function vDashboard(){
   const pool=filterProjects(state.projects,ui.projectSearch);
   const filteredPool=filterByPrio(pool.filter(p=>ui.dirFilter==='all'||(p.direction||'vydacha')===ui.dirFilter));
   const s=dashStats(filteredPool);
-  let act=filteredPool.filter(p=>projPhase(p).key!=='done');
-  let fin=filteredPool.filter(p=>projPhase(p).key==='done');
-  if(ui.sortByPrio){act=sortByPrio(act);fin=sortByPrio(fin);}
+  /* активные = не архив; архивные уходят вниз */
+  let act=filteredPool.filter(p=>!isArchived(p));
+  let arch=filteredPool.filter(p=>isArchived(p));
+  if(ui.sortByPrio){act=sortByPrio(act);arch=sortByPrio(arch);}
   let cards='';
   if(!filteredPool.length){
     cards='<div class="empty-big"><p>'+(ui.projectSearch||ui.dirFilter!=='all'||ui.prioFilter!=='all'?'Ничего не найдено.':'Проектов пока нет.')+'</p>'
       +(!ui.projectSearch&&ui.dirFilter==='all'&&ui.prioFilter==='all'?'<button class="btn primary" data-action="new-project">'+I.plus+' Создать первый</button>':'')+'</div>';
   }else{
     cards=act.map((p,i)=>projectCard(p,i)).join('');
-    if(fin.length){
-      cards+='<div class="pgrid-divider">✳ Выполнено · '+fin.length+'</div>';
-      cards+=fin.map((p,i)=>projectCard(p,i)).join('');
+    if(arch.length){
+      cards+='<div class="pgrid-divider archive">'+I.archive+' Архив · '+arch.length+'</div>';
+      cards+=arch.map((p,i)=>projectCard(p,i)).join('');
     }
   }
   const filterNext=DIR_FILTER_LABEL[DIR_CYCLE[(DIR_CYCLE.indexOf(ui.dirFilter)+1)%DIR_CYCLE.length]];
   const prioFilterNext=PRIO_FILTER_LABEL[PRIO_CYCLE[(PRIO_CYCLE.indexOf(ui.prioFilter)+1)%PRIO_CYCLE.length]];
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v4.2</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v4.3</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Выдачи, договоры и музейные проекты: чек-листы и дедлайны, которые считаются сами — от ключевой даты проекта.</p></section>'
    +'<div class="search-box'+(ui.projectSearch?' has-value':'')+'">'
@@ -1134,7 +1142,7 @@ function vDashboard(){
    +'<button class="stat stat-btn'+(ui.prioFilter!=='all'?' on':'')+'" data-action="prio-filter" title="Фильтр по приоритету: следующее значение — «'+prioFilterNext+'»">'
    +'<span class="s-ic">'+I.flag+'</span>'
    +'<div class="stat-tx"><span>'+PRIO_FILTER_LABEL[ui.prioFilter]+'</span><small>приоритет · нажмите для смены</small></div></button>'
-   +'<button class="stat stat-btn'+(ui.sortByPrio?' on':'')+'" data-action="sort-prio" title="Сортировать проекты по важности: от «горит» к «паузе»">'
+   +'<button class="stat stat-btn'+(ui.sortByPrio?' on':'')+'" data-action="sort-prio" title="Сортировать проекты по важности: от «горит» к «архив»">'
    +'<span class="s-ic">'+I.sort+'</span>'
    +'<div class="stat-tx"><span>приоритет</span><small>'+(ui.sortByPrio?'сортировка: по убыванию':'сортировка: выключена')+'</small></div></button>'
    +'<div class="stat"><b>'+(s.upcoming?daysUntil(s.upcoming.dv):'—')+'</b><div class="stat-tx"><span>дней до ближайшего дедлайна</span><small>'+(s.upcoming?esc(s.upcoming.name):'нет запланированных')+'</small></div></div>'
@@ -1870,7 +1878,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'4.2',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'4.3',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
@@ -1940,7 +1948,7 @@ function onClick(e){
       ui.sortByPrio=!ui.sortByPrio;
       try{localStorage.setItem(LS_SORT,ui.sortByPrio?'1':'0');}catch(err){}
       renderApp();
-      toast(ui.sortByPrio?'Проекты отсортированы: горит → пауза':'Сортировка по приоритету выключена');
+      toast(ui.sortByPrio?'Проекты отсортированы: горит → архив':'Сортировка по приоритету выключена');
       break;
     }
     case 'dir-filter':{
@@ -2068,18 +2076,18 @@ function onChange(e){
     if(grid){
       const pool=filterProjects(state.projects,ui.projectSearch);
       const filteredPool=filterByPrio(pool.filter(p=>ui.dirFilter==='all'||(p.direction||'vydacha')===ui.dirFilter));
-      let act=filteredPool.filter(p=>projPhase(p).key!=='done');
-      let fin=filteredPool.filter(p=>projPhase(p).key==='done');
-      if(ui.sortByPrio){act=sortByPrio(act);fin=sortByPrio(fin);}
+      let act=filteredPool.filter(p=>!isArchived(p));
+      let arch=filteredPool.filter(p=>isArchived(p));
+      if(ui.sortByPrio){act=sortByPrio(act);arch=sortByPrio(arch);}
       let cards='';
       if(!filteredPool.length){
         cards='<div class="empty-big"><p>'+(ui.projectSearch||ui.dirFilter!=='all'||ui.prioFilter!=='all'?'Ничего не найдено.':'Проектов пока нет.')+'</p>'
           +(!ui.projectSearch&&ui.dirFilter==='all'&&ui.prioFilter==='all'?'<button class="btn primary" data-action="new-project">'+I.plus+' Создать первый</button>':'')+'</div>';
       }else{
         cards=act.map((p,i)=>projectCard(p,i)).join('');
-        if(fin.length){
-          cards+='<div class="pgrid-divider">✳ Выполнено · '+fin.length+'</div>';
-          cards+=fin.map((p,i)=>projectCard(p,i)).join('');
+        if(arch.length){
+          cards+='<div class="pgrid-divider archive">'+I.archive+' Архив · '+arch.length+'</div>';
+          cards+=arch.map((p,i)=>projectCard(p,i)).join('');
         }
       }
       grid.innerHTML=cards;
