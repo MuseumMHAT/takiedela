@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v4.5</title>
+<title>Такие дела — выдачи и проекты · v4.6</title>
 <meta name="description" content="Персональный трекер музейных выдач, договоров и музейных проектов: этапы, автодедлайны, контакты, исполнители и заметки.">
 <meta name="theme-color" content="#c14e24">
 <meta property="og:title" content="Такие дела — трекер музейных выдач">
@@ -35,6 +35,7 @@
   --r:12px;
   --display:'Spectral',Georgia,'Times New Roman',serif;
   --body:'Golos Text',-apple-system,'Segoe UI',sans-serif;
+  --hdr-h:58px;
 }
 [data-theme="dark"]{
   --bg:#1a1814; --surface:#24201a; --surface2:#2c2820;
@@ -109,7 +110,6 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .iconbtn:hover{background:var(--surface2);color:var(--accent);border-color:var(--line-soft)}
 .iconbtn.danger-h:hover{color:var(--red)}
 .iconbtn.sm{width:26px;height:26px}
-.iconbtn:disabled{opacity:.22!important;pointer-events:none}
 .linkbtn{background:none;border:none;color:var(--ink2);font:600 13px var(--body);cursor:pointer;
   display:inline-flex;gap:5px;align-items:center;padding:4px 0;transition:color .15s}
 .linkbtn:hover{color:var(--accent)}
@@ -283,14 +283,23 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 .ptrack i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#d97a3f);
   border-radius:99px;transition:width .6s cubic-bezier(.2,.7,.3,1)}
 #projStatsTx{font-size:13px;color:var(--ink2);white-space:nowrap}
-.ptabs{display:flex;gap:22px;border-bottom:1px solid var(--line);margin:24px 0 18px;overflow-x:auto}
-.ptab{position:relative;background:none;border:none;padding:10px 2px 12px;font:600 15px var(--body);
-  color:var(--ink2);cursor:pointer;white-space:nowrap}
+
+/* ---------- tabs (sticky) ---------- */
+.ptabs{display:flex;gap:6px;border-bottom:1px solid var(--line);margin:24px 0 18px;overflow-x:auto;
+  position:sticky;top:var(--hdr-h);z-index:30;background:var(--bg);padding-bottom:0}
+.ptab{position:relative;background:none;border:none;padding:10px 4px 12px;font:600 15px var(--body);
+  color:var(--ink2);cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
 .ptab::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:3px;background:var(--accent);
   border-radius:3px 3px 0 0;transform:scaleX(0);transition:transform .25s}
 .ptab.active{color:var(--ink)}
 .ptab.active::after{transform:scaleX(1)}
 .ptab:hover{color:var(--accent)}
+.ptab .cnt{background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:1px 7px;font-size:12px}
+.ptab-add{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;
+  border-radius:6px;border:1px solid var(--line-soft);background:var(--surface);color:var(--mut);
+  font-size:15px;line-height:1;cursor:pointer;transition:.15s;flex:none}
+.ptab-add:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+
 .cnt{background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:1px 7px;font-size:12px;margin-left:5px}
 
 /* ---------- stages ---------- */
@@ -320,8 +329,8 @@ button.orgchip:hover{color:var(--accent);border-color:var(--accent)}
 .tasks{list-style:none;margin:10px 0 4px;border-top:1px dashed var(--line);padding-top:8px}
 .task{display:flex;align-items:flex-start;gap:6px;padding:5px 6px;border-radius:8px;transition:background .15s;flex-wrap:wrap}
 .task:hover{background:var(--surface2)}
-.task .iconbtn{opacity:0}
-.task:hover .iconbtn{opacity:1}
+.task .t-edit,.task .iconbtn.t-del{opacity:0}
+.task:hover .t-edit,.task:hover .t-del{opacity:1}
 .chk{display:flex;gap:10px;align-items:flex-start;cursor:pointer;flex:1;min-width:min(230px,100%)}
 .chk input{position:absolute;opacity:0;width:1px;height:1px}
 .box{flex:none;width:19px;height:19px;margin-top:2px;border:2px solid var(--mut);border-radius:6px;
@@ -459,7 +468,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 [data-theme="dark"] .note.paper{--nc:rgba(255,253,246,.09)}
 .note-text{white-space:pre-wrap;font-size:14px;line-height:1.5}
 .note footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;
-  color:var(--mut);font-size:11.5px;gap:6px;flex-wrap:wrap}
+  color:rgba(39,34,25,.55);font-size:11.5px;gap:6px;flex-wrap:wrap}
 .note-btns button{background:none;border:none;cursor:pointer;color:inherit;opacity:.7;padding:2px;display:inline-flex}
 .note-btns button:hover{opacity:1;color:var(--accent)}
 .pinbtn{position:absolute;top:6px;right:6px;opacity:.45}
@@ -552,7 +561,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 4.5 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 4.6 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -1019,7 +1028,6 @@ function firstActiveTask(p){
   for(const st of p.stages){for(const t of st.tasks){if(!t.done)return t.text;}}
   return null;
 }
-/* сортировка по первому слову имени (по алфавиту) */
 function sortByFirstName(list,getName){
   return list.slice().sort((a,b)=>{
     const na=(getName(a)||'').trim();
@@ -1033,15 +1041,9 @@ function sortByFirstName(list,getName){
     return na.localeCompare(nb,'ru');
   });
 }
-function sortContacts(list){
-  return sortByFirstName(list,c=>c.name);
-}
-function sortOrgs(list){
-  return sortByFirstName(list,o=>o.name);
-}
-function sortExecs(list){
-  return sortByFirstName(list,x=>x.name);
-}
+function sortContacts(list){return sortByFirstName(list,c=>c.name);}
+function sortOrgs(list){return sortByFirstName(list,o=>o.name);}
+function sortExecs(list){return sortByFirstName(list,x=>x.name);}
 function filterContacts(list,query){
   if(!query)return list;
   const q=query.toLowerCase().trim();
@@ -1131,7 +1133,7 @@ function vDashboard(){
   const filterNext=DIR_FILTER_LABEL[DIR_CYCLE[(DIR_CYCLE.indexOf(ui.dirFilter)+1)%DIR_CYCLE.length]];
   const prioFilterNext=PRIO_FILTER_LABEL[PRIO_CYCLE[(PRIO_CYCLE.indexOf(ui.prioFilter)+1)%PRIO_CYCLE.length]];
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v4.5</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v4.6</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Выдачи, договоры и музейные проекты: чек-листы и дедлайны, которые считаются сами — от ключевой даты проекта.</p></section>'
    +'<div class="search-box'+(ui.projectSearch?' has-value':'')+'">'
@@ -1547,16 +1549,22 @@ function vBook(){
     const sorted=sortExecs(ex);
     body=sorted.map(execBookCard).join('')||'<div class="empty-big"><p>Исполнителей пока нет.</p><p style="margin-top:6px;font-size:13px;color:var(--mut)">Это коллеги, которых вы назначаете на задачи в проектах.</p></div>';
   }
+  /* вкладки справочника: каждая с кнопкой "+" для быстрого добавления */
+  const bookTabs=[
+    {key:'orgs',  label:'Организации', cnt:o.length, addAction:'org-new',    addTitle:'Добавить организацию'},
+    {key:'contacts',label:'Контакты',  cnt:c.length, addAction:'contact-new',addTitle:'Добавить контакт'},
+    {key:'execs', label:'Исполнители', cnt:ex.length,addAction:'exec-new',   addTitle:'Добавить исполнителя'}
+  ];
   return '<div class="wrap">'
    +'<section class="book-head rise"><div><p class="kicker">Справочник</p><h1>Партнёры и команда</h1>'
    +'<p class="lede small">Организации и контакты — для проектов. Исполнители — коллеги, которых можно назначать на задачи.</p></div>'
-   +'<div class="row-gap"><button class="btn ghost" data-action="org-new">'+I.plus+' Организация</button>'
-   +'<button class="btn ghost" data-action="contact-new">'+I.plus+' Контакт</button>'
-   +'<button class="btn primary" data-action="exec-new">'+I.plus+' Исполнитель</button></div></section>'
+   +'</section>'
    +'<nav class="ptabs rise" style="animation-delay:60ms">'
-   +'<button class="ptab'+(ui.bookTab==='orgs'?' active':'')+'" data-action="book-tab" data-tab="orgs">Организации <span class="cnt">'+o.length+'</span></button>'
-   +'<button class="ptab'+(ui.bookTab==='contacts'?' active':'')+'" data-action="book-tab" data-tab="contacts">Контакты <span class="cnt">'+c.length+'</span></button>'
-   +'<button class="ptab'+(ui.bookTab==='execs'?' active':'')+'" data-action="book-tab" data-tab="execs">Исполнители <span class="cnt">'+ex.length+'</span></button></nav>'
+   +bookTabs.map(t=>'<button class="ptab'+(ui.bookTab===t.key?' active':'')+'" data-action="book-tab" data-tab="'+t.key+'">'
+     +t.label+'<span class="cnt">'+t.cnt+'</span>'
+     +'<span class="ptab-add" data-action="'+t.addAction+'" title="'+t.addTitle+'" role="button" aria-label="'+t.addTitle+'">+</span>'
+     +'</button>').join('')
+   +'</nav>'
    +'<div class="bgrid">'+body+'</div>'
    +'</div>';
 }
@@ -1888,7 +1896,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'4.5',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'4.6',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
@@ -1933,6 +1941,15 @@ function toast(msg,type){
 /* ================= события ================= */
 function onClick(e){
   if(e.target.classList&&e.target.classList.contains('overlay')){closeModal();return;}
+  /* обработка клика по "+" внутри вкладки справочника — stopPropagation, чтобы не переключалась вкладка */
+  if(e.target.classList&&e.target.classList.contains('ptab-add')){
+    e.stopPropagation();
+    const a=e.target.dataset.action;
+    if(a==='org-new')openOrgModal();
+    else if(a==='contact-new'){ui.quickContact=false;openContactModal();}
+    else if(a==='exec-new')openExecModal();
+    return;
+  }
   const el=e.target.closest('[data-action]');if(!el)return;
   const a=el.dataset.action,id=el.dataset.id,p=cur();
   switch(a){
