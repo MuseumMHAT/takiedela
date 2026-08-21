@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v4.3</title>
+<title>Такие дела — выдачи и проекты · v4.5</title>
 <meta name="description" content="Персональный трекер музейных выдач, договоров и музейных проектов: этапы, автодедлайны, контакты, исполнители и заметки.">
 <meta name="theme-color" content="#c14e24">
 <meta property="og:title" content="Такие дела — трекер музейных выдач">
@@ -425,11 +425,11 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
   background:var(--surface);font:400 14px var(--body);color:var(--ink);outline:none;transition:.15s}
 [data-theme="dark"] .search-box input{color-scheme:dark}
 .search-box input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
-.search-box svg{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--mut);pointer-events:none}
+.search-box svg.search-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--mut);pointer-events:none}
 .search-box .clear-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;
-  color:var(--mut);cursor:pointer;padding:4px;display:none}
+  color:var(--mut);cursor:pointer;padding:4px;display:none;line-height:1}
 .search-box .clear-btn:hover{color:var(--accent)}
-.search-box.has-value svg{display:none}
+.search-box.has-value svg.search-icon{display:none}
 .search-box.has-value .clear-btn{display:block}
 
 /* ---------- notes ---------- */
@@ -552,7 +552,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 4.3 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 4.5 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -594,8 +594,8 @@ const I={
   up:svg16('<path d="M12 19V5m0 0l-6 6m6-6l6 6"/>'),
   down:svg16('<path d="M12 5v14m0 0l6-6m-6 6l-6-6"/>'),
   sort:svg('<path d="M7 4v16m0 0l-3-3m3 3l3-3M17 20V4m0 0l-3 3m3-3l3 3"/>'),
-  flag:svg('<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>'),
-  archive:svg16('<path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/>')
+  archive:svg16('<path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/>'),
+  searchIcon:svg16('<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>')
 };
 
 /* ================= приоритеты ================= */
@@ -623,7 +623,6 @@ function sortByPrio(list){
     return (a.dv||'9999-12-31').localeCompare(b.dv||'9999-12-31');
   });
 }
-/* проект считается «архивным» если приоритет archive ИЛИ 100% выполнен */
 function isArchived(p){
   if(p.priority==='archive')return true;
   const st=projStats(p);
@@ -1020,22 +1019,28 @@ function firstActiveTask(p){
   for(const st of p.stages){for(const t of st.tasks){if(!t.done)return t.text;}}
   return null;
 }
-function surnameOf(name){
-  const parts=(name||'').trim().split(/\s+/).filter(Boolean);
-  if(!parts.length)return '';
-  return parts[parts.length-1].toLowerCase();
-}
-function firstOrgOf(c){
-  if(!c.orgIds||!c.orgIds.length)return '';
-  const o=state.orgs.find(o=>o.id===c.orgIds[0]);
-  return o?o.name.toLowerCase():'';
+/* сортировка по первому слову имени (по алфавиту) */
+function sortByFirstName(list,getName){
+  return list.slice().sort((a,b)=>{
+    const na=(getName(a)||'').trim();
+    const nb=(getName(b)||'').trim();
+    const pa=na.split(/\s+/);
+    const pb=nb.split(/\s+/);
+    const fa=pa[0]||'';
+    const fb=pb[0]||'';
+    const cmp=fa.localeCompare(fb,'ru');
+    if(cmp!==0)return cmp;
+    return na.localeCompare(nb,'ru');
+  });
 }
 function sortContacts(list){
-  return list.slice().sort((a,b)=>{
-    const s=surnameOf(a.name).localeCompare(surnameOf(b.name),'ru');
-    if(s!==0)return s;
-    return firstOrgOf(a).localeCompare(firstOrgOf(b),'ru');
-  });
+  return sortByFirstName(list,c=>c.name);
+}
+function sortOrgs(list){
+  return sortByFirstName(list,o=>o.name);
+}
+function sortExecs(list){
+  return sortByFirstName(list,x=>x.name);
 }
 function filterContacts(list,query){
   if(!query)return list;
@@ -1109,7 +1114,6 @@ function vDashboard(){
   const pool=filterProjects(state.projects,ui.projectSearch);
   const filteredPool=filterByPrio(pool.filter(p=>ui.dirFilter==='all'||(p.direction||'vydacha')===ui.dirFilter));
   const s=dashStats(filteredPool);
-  /* активные = не архив; архивные уходят вниз */
   let act=filteredPool.filter(p=>!isArchived(p));
   let arch=filteredPool.filter(p=>isArchived(p));
   if(ui.sortByPrio){act=sortByPrio(act);arch=sortByPrio(arch);}
@@ -1127,12 +1131,12 @@ function vDashboard(){
   const filterNext=DIR_FILTER_LABEL[DIR_CYCLE[(DIR_CYCLE.indexOf(ui.dirFilter)+1)%DIR_CYCLE.length]];
   const prioFilterNext=PRIO_FILTER_LABEL[PRIO_CYCLE[(PRIO_CYCLE.indexOf(ui.prioFilter)+1)%PRIO_CYCLE.length]];
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v4.3</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v4.5</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Выдачи, договоры и музейные проекты: чек-листы и дедлайны, которые считаются сами — от ключевой даты проекта.</p></section>'
    +'<div class="search-box'+(ui.projectSearch?' has-value':'')+'">'
    +'<input type="text" id="projectSearchInput" placeholder="Поиск по названию, направлению, партнёру, контакту…" value="'+esc(ui.projectSearch)+'">'
-   +I.search
+   +'<span class="search-icon">'+I.searchIcon+'</span>'
    +'<button class="clear-btn" data-action="clear-project-search" title="Очистить поиск">'+I.x+'</button>'
    +'</div>'
    +'<section class="stats rise" style="animation-delay:70ms">'
@@ -1525,18 +1529,24 @@ function execBookCard(x,i){
 function vBook(){
   const o=state.orgs,c=state.contacts,ex=state.executors;
   let body='';
-  if(ui.bookTab==='orgs')body=o.map(orgBookCard).join('')||'<div class="empty-big"><p>Организаций пока нет.</p></div>';
+  if(ui.bookTab==='orgs'){
+    const sorted=sortOrgs(o);
+    body=sorted.map(orgBookCard).join('')||'<div class="empty-big"><p>Организаций пока нет.</p></div>';
+  }
   else if(ui.bookTab==='contacts'){
     const filtered=filterContacts(c,ui.contactSearch);
     const sorted=sortContacts(filtered);
     body='<div class="search-box'+(ui.contactSearch?' has-value':'')+'">'
       +'<input type="text" id="contactSearchInput" placeholder="Поиск по имени, должности, организации, телефону, email…" value="'+esc(ui.contactSearch)+'">'
-      +I.search
+      +'<span class="search-icon">'+I.searchIcon+'</span>'
       +'<button class="clear-btn" data-action="clear-contact-search" title="Очистить поиск">'+I.x+'</button>'
       +'</div>'
       +(sorted.length?sorted.map(contactBookCard).join(''):'<div class="empty-big"><p>Контакты не найдены.</p></div>');
   }
-  else body=ex.map(execBookCard).join('')||'<div class="empty-big"><p>Исполнителей пока нет.</p><p style="margin-top:6px;font-size:13px;color:var(--mut)">Это коллеги, которых вы назначаете на задачи в проектах.</p></div>';
+  else{
+    const sorted=sortExecs(ex);
+    body=sorted.map(execBookCard).join('')||'<div class="empty-big"><p>Исполнителей пока нет.</p><p style="margin-top:6px;font-size:13px;color:var(--mut)">Это коллеги, которых вы назначаете на задачи в проектах.</p></div>';
+  }
   return '<div class="wrap">'
    +'<section class="book-head rise"><div><p class="kicker">Справочник</p><h1>Партнёры и команда</h1>'
    +'<p class="lede small">Организации и контакты — для проектов. Исполнители — коллеги, которых можно назначать на задачи.</p></div>'
@@ -1878,7 +1888,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'4.3',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'4.5',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
