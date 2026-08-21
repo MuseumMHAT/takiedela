@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v4.1</title>
+<title>Такие дела — выдачи и проекты · v4.2</title>
 <meta name="description" content="Персональный трекер музейных выдач, договоров и музейных проектов: этапы, автодедлайны, контакты, исполнители и заметки.">
 <meta name="theme-color" content="#c14e24">
 <meta property="og:title" content="Такие дела — трекер музейных выдач">
@@ -121,6 +120,7 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .c-amber{background:var(--amber-soft);color:var(--amber)}
 .c-red{background:var(--red-soft);color:var(--red)}
 .c-muted{background:var(--line-soft);color:var(--ink2)}
+.c-pause{background:var(--line-soft);color:var(--ink2)}
 .c-type{background:var(--surface2);color:var(--ink2);border:1px solid var(--line-soft)}
 .c-exec{background:var(--blue-soft);color:var(--blue)}
 .dirchip{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:800;letter-spacing:.06em;
@@ -171,8 +171,10 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
 .stat:hover{background:var(--surface2)}
 .stat + .stat{border-left:1px solid var(--line-soft)}
 .stat b{font:700 22px/1 var(--display);flex:none}
+.stat:nth-child(1) b{color:var(--accent)}
+.stat:nth-child(2) b{color:var(--green)}
 .stat:nth-child(3) b{color:var(--blue)}
-.stat:nth-child(4) b{color:var(--accent)}
+.stat:nth-child(4) b{color:var(--amber)}
 .stat-tx{min-width:0}
 .stat-tx span{display:block;font-weight:700;font-size:12px;color:var(--ink2);line-height:1.25;white-space:nowrap;
   overflow:hidden;text-overflow:ellipsis;text-transform:lowercase}
@@ -194,12 +196,16 @@ header{position:sticky;top:0;z-index:40;background:rgba(246,242,234,.88);
   background:linear-gradient(90deg,var(--accent),#d97a3f);opacity:0;transition:.25s}
 .pcard:hover{transform:translateY(-4px);box-shadow:0 18px 34px -16px rgba(39,34,25,.3)}
 .pcard:hover::before{opacity:1}
+.pcard.is-done{opacity:.78}
+.pcard.is-done:hover{opacity:1}
 .pcard.pc-vyd{background:#edf4ea;border-color:rgba(62,125,90,.22)}
 .pcard.pc-vyd::before{background:linear-gradient(90deg,var(--green),#6ea583)}
 .pcard.pc-dog{background:#fcefe1;border-color:rgba(193,78,36,.22)}
 .pcard.pc-dog::before{background:linear-gradient(90deg,var(--accent),#e0854f)}
 .pcard.pc-museum{background:#e3edf7;border-color:rgba(65,98,142,.22)}
 .pcard.pc-museum::before{background:linear-gradient(90deg,var(--blue),#7fa3cc)}
+.pcard.pc-pause{background:var(--surface2);border-color:var(--line)}
+.pcard.pc-pause::before{background:linear-gradient(90deg,var(--mut),var(--mut))}
 [data-theme="dark"] .pcard.pc-vyd{background:rgba(90,165,122,.10);border-color:rgba(90,165,122,.3)}
 [data-theme="dark"] .pcard.pc-dog{background:rgba(217,122,79,.10);border-color:rgba(217,122,79,.3)}
 [data-theme="dark"] .pcard.pc-museum{background:rgba(106,143,185,.10);border-color:rgba(106,143,185,.3)}
@@ -547,7 +553,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 4.1 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 4.2 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -589,7 +595,8 @@ const I={
   up:svg16('<path d="M12 19V5m0 0l-6 6m6-6l6 6"/>'),
   down:svg16('<path d="M12 5v14m0 0l6-6m-6 6l-6-6"/>'),
   sort:svg('<path d="M7 4v16m0 0l-3-3m3 3l3-3M17 20V4m0 0l-3 3m3-3l3 3"/>'),
-  search:svg('<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>')
+  search:svg('<circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>'),
+  flag:svg('<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>')
 };
 
 /* ================= приоритеты ================= */
@@ -601,6 +608,8 @@ const PRIO_LEVELS=[
   {key:'pause',     label:'пауза',   color:'#6b6355'}
 ];
 const PRIO_ORDER={fire:0,important:1,normal:2,background:3,pause:4};
+const PRIO_CYCLE=['all','fire','important','normal','background','pause'];
+const PRIO_FILTER_LABEL={all:'все приоритеты',fire:'горит',important:'важное',normal:'штатное',background:'фоновое',pause:'пауза'};
 const prioOf=p=>PRIO_LEVELS.find(l=>l.key===(p.priority||'normal'))||PRIO_LEVELS[2];
 function prioChipHtml(p){
   const lv=prioOf(p);
@@ -618,11 +627,13 @@ function applyAutoPriority(){
   const T=todayISO();
   let changed=false;
   state.projects.forEach(p=>{
-    if(p.importantDate && T>=p.importantDate && p.importantAppliedDate!==p.importantDate){
+    const st=projStats(p);
+    if(st.total&&st.done===st.total){
+      if(p.priority!=='pause'){p.priority='pause';changed=true;}
+    }else if(p.importantDate && T>=p.importantDate && p.importantAppliedDate!==p.importantDate){
       const curIdx=PRIO_ORDER[p.priority||'normal']??2;
-      if(curIdx>PRIO_ORDER['important'])p.priority='important';
+      if(curIdx>PRIO_ORDER['important']){p.priority='important';changed=true;}
       p.importantAppliedDate=p.importantDate;
-      changed=true;
     }
   });
   if(changed)persist(false);
@@ -762,9 +773,10 @@ const makeStages=dir=>(TEMPLATES[dir]||STAGES_VYDACHA).map(s=>({t:s.t,a:s.a,off:
 const LS_KEY='takiedela_v15';
 const LS_SORT='takiedela_sortprio';
 const LS_DIRFILTER='takiedela_dirfilter';
+const LS_PRIOFILTER='takiedela_priofilter';
 const LS_THEME='takiedela_theme';
 let state=null;
-const ui={view:'dash',projectId:null,tab:'stages',openAttach:null,addingStage:null,editStage:null,editTask:null,noteColor:'sun',noteDraft:'',editNote:null,bookTab:'orgs',sortByPrio:false,dirFilter:'all',quickContact:false,contactSearch:'',projectSearch:''};
+const ui={view:'dash',projectId:null,tab:'stages',openAttach:null,addingStage:null,editStage:null,editTask:null,noteColor:'sun',noteDraft:'',editNote:null,bookTab:'orgs',sortByPrio:false,dirFilter:'all',prioFilter:'all',quickContact:false,contactSearch:'',projectSearch:''};
 let contactModalOrgs=[];
 let npDir='vydacha';
 const cur=()=>state.projects.find(p=>p.id===ui.projectId)||null;
@@ -947,7 +959,7 @@ function flashSave(){
 function projStats(p){let done=0,total=0;p.stages.forEach(s=>s.tasks.forEach(t=>{total++;if(t.done)done++;}));return{done,total,pct:total?Math.round(done/total*100):0};}
 function projPhase(p){
   const st=projStats(p),T=todayISO(),single=isDog(p)||isMuseum(p);
-  if(st.total&&st.done===st.total)return{key:'done',cls:'c-muted',label:'Завершён'};
+  if(st.total&&st.done===st.total)return{key:'pause',cls:'c-pause',label:'фоновое'};
   if(p.dv&&T>p.dv){
     if(single)return{key:'late',cls:'c-red',label:'Просрочен'};
     if(p.ret&&T>p.ret)return{key:'late',cls:'c-amber',label:'Возврат · проверка'};
@@ -1046,6 +1058,10 @@ function filterProjects(list,query){
     return false;
   });
 }
+function filterByPrio(list){
+  if(ui.prioFilter==='all')return list;
+  return list.filter(p=>(p.priority||'normal')===ui.prioFilter);
+}
 
 /* ================= дашборд ================= */
 function dashStats(pool){
@@ -1071,7 +1087,7 @@ function projectCard(p,i){
   if(contact)info+='<button class="pcard-contact" data-action="open-contact" data-id="'+contact.id+'" title="Открыть карточку контакта">'+I.user+'<span>'+esc(contact.name)+'</span></button>';
   if(activeTask)info+='<div class="pcard-task" title="Текущая задача">'+I.check+'<span>'+esc(activeTask)+'</span></div>';
   else info+='<div class="pcard-task done-all" title="Все задачи выполнены">'+I.check+'<span>Все задачи выполнены</span></div>';
-  return '<article class="pcard rise '+cardCls+(ph.key==='done'?' is-done':'')+'" style="animation-delay:'+Math.min(i*70,420)+'ms" data-action="open-project" data-id="'+p.id+'">'
+  return '<article class="pcard rise '+cardCls+(ph.key==='pause'?' pc-pause':'')+'" style="animation-delay:'+Math.min(i*70,420)+'ms" data-action="open-project" data-id="'+p.id+'">'
    +'<div class="pcard-top"><span class="pcard-left">'+dirChipHtml(p)
    +(org?'<span class="orgchip">'+esc(org.name)+'</span>':'<span class="orgchip">без партнёра</span>')+'</span>'
    +prioChipHtml(p)
@@ -1084,15 +1100,15 @@ function projectCard(p,i){
 }
 function vDashboard(){
   const pool=filterProjects(state.projects,ui.projectSearch);
-  const filteredPool=pool.filter(p=>ui.dirFilter==='all'||(p.direction||'vydacha')===ui.dirFilter);
+  const filteredPool=filterByPrio(pool.filter(p=>ui.dirFilter==='all'||(p.direction||'vydacha')===ui.dirFilter));
   const s=dashStats(filteredPool);
   let act=filteredPool.filter(p=>projPhase(p).key!=='done');
   let fin=filteredPool.filter(p=>projPhase(p).key==='done');
   if(ui.sortByPrio){act=sortByPrio(act);fin=sortByPrio(fin);}
   let cards='';
   if(!filteredPool.length){
-    cards='<div class="empty-big"><p>'+(ui.projectSearch||ui.dirFilter!=='all'?'Ничего не найдено.':'Проектов пока нет.')+'</p>'
-      +(!ui.projectSearch&&ui.dirFilter==='all'?'<button class="btn primary" data-action="new-project">'+I.plus+' Создать первый</button>':'')+'</div>';
+    cards='<div class="empty-big"><p>'+(ui.projectSearch||ui.dirFilter!=='all'||ui.prioFilter!=='all'?'Ничего не найдено.':'Проектов пока нет.')+'</p>'
+      +(!ui.projectSearch&&ui.dirFilter==='all'&&ui.prioFilter==='all'?'<button class="btn primary" data-action="new-project">'+I.plus+' Создать первый</button>':'')+'</div>';
   }else{
     cards=act.map((p,i)=>projectCard(p,i)).join('');
     if(fin.length){
@@ -1101,8 +1117,9 @@ function vDashboard(){
     }
   }
   const filterNext=DIR_FILTER_LABEL[DIR_CYCLE[(DIR_CYCLE.indexOf(ui.dirFilter)+1)%DIR_CYCLE.length]];
+  const prioFilterNext=PRIO_FILTER_LABEL[PRIO_CYCLE[(PRIO_CYCLE.indexOf(ui.prioFilter)+1)%PRIO_CYCLE.length]];
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v4.1</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v4.2</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Выдачи, договоры и музейные проекты: чек-листы и дедлайны, которые считаются сами — от ключевой даты проекта.</p></section>'
    +'<div class="search-box'+(ui.projectSearch?' has-value':'')+'">'
@@ -1114,11 +1131,13 @@ function vDashboard(){
    +'<button class="stat stat-btn'+(ui.dirFilter!=='all'?' on':'')+'" data-action="dir-filter" title="Фильтр по направлению: следующее значение — «'+filterNext+'»">'
    +'<span class="s-ic"><i class="f-dot" style="background:'+dirFilterDot()+'"></i></span>'
    +'<div class="stat-tx"><span>'+DIR_FILTER_LABEL[ui.dirFilter]+'</span><small>направление · нажмите для смены</small></div></button>'
+   +'<button class="stat stat-btn'+(ui.prioFilter!=='all'?' on':'')+'" data-action="prio-filter" title="Фильтр по приоритету: следующее значение — «'+prioFilterNext+'»">'
+   +'<span class="s-ic">'+I.flag+'</span>'
+   +'<div class="stat-tx"><span>'+PRIO_FILTER_LABEL[ui.prioFilter]+'</span><small>приоритет · нажмите для смены</small></div></button>'
    +'<button class="stat stat-btn'+(ui.sortByPrio?' on':'')+'" data-action="sort-prio" title="Сортировать проекты по важности: от «горит» к «паузе»">'
    +'<span class="s-ic">'+I.sort+'</span>'
    +'<div class="stat-tx"><span>приоритет</span><small>'+(ui.sortByPrio?'сортировка: по убыванию':'сортировка: выключена')+'</small></div></button>'
    +'<div class="stat"><b>'+(s.upcoming?daysUntil(s.upcoming.dv):'—')+'</b><div class="stat-tx"><span>дней до ближайшего дедлайна</span><small>'+(s.upcoming?esc(s.upcoming.name):'нет запланированных')+'</small></div></div>'
-   +'<div class="stat"><b>'+s.inWork+'</b><div class="stat-tx"><span>в работе</span><small>проектов в выборке: '+s.total+'</small></div></div>'
    +'</section>'
    +'<section class="dash-bar rise" style="animation-delay:120ms"><h2>Проекты</h2>'
    +'<button class="btn primary" data-action="new-project">'+I.plus+' Новый проект</button></section>'
@@ -1659,7 +1678,7 @@ function createProject(){
   ui.view='project';ui.projectId=p.id;ui.tab='stages';ui.openAttach=null;
   renderApp();window.scrollTo(0,0);toast('Проект создан — дедлайны рассчитаны');
 }
-const ORG_TYPES=['Музей','Галерея','Частная коллекция','Фонд','Театр','Другое'];
+const ORG_TYPES=['Музей','Галерея','Частная коллекция','Фонд','Театр','Страховая','Контрагент','Другое'];
 function openOrgModal(org){
   openModal('<h3>'+(org?'Изменить организацию':'Новая организация')+'</h3>'
    +'<label>Название *<input id="m-name" maxlength="90" placeholder="Например: Музей цветов"></label>'
@@ -1851,7 +1870,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'4.1',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'4.2',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
@@ -1909,6 +1928,14 @@ function onClick(e){
     case 'rename-start':startRename();break;
     case 'delete-project':deleteProject();break;
     case 'prio-edit':{const pr=state.projects.find(x=>x.id===id);if(pr)openPrioMenu(pr,el);break;}
+    case 'prio-filter':{
+      const idx=(PRIO_CYCLE.indexOf(ui.prioFilter)+1)%PRIO_CYCLE.length;
+      ui.prioFilter=PRIO_CYCLE[idx];
+      try{localStorage.setItem(LS_PRIOFILTER,ui.prioFilter);}catch(err){}
+      renderApp();
+      toast('Фильтр: '+PRIO_FILTER_LABEL[ui.prioFilter]);
+      break;
+    }
     case 'sort-prio':{
       ui.sortByPrio=!ui.sortByPrio;
       try{localStorage.setItem(LS_SORT,ui.sortByPrio?'1':'0');}catch(err){}
@@ -2040,14 +2067,14 @@ function onChange(e){
     const grid=document.querySelector('.pgrid');
     if(grid){
       const pool=filterProjects(state.projects,ui.projectSearch);
-      const filteredPool=pool.filter(p=>ui.dirFilter==='all'||(p.direction||'vydacha')===ui.dirFilter);
+      const filteredPool=filterByPrio(pool.filter(p=>ui.dirFilter==='all'||(p.direction||'vydacha')===ui.dirFilter));
       let act=filteredPool.filter(p=>projPhase(p).key!=='done');
       let fin=filteredPool.filter(p=>projPhase(p).key==='done');
       if(ui.sortByPrio){act=sortByPrio(act);fin=sortByPrio(fin);}
       let cards='';
       if(!filteredPool.length){
-        cards='<div class="empty-big"><p>'+(ui.projectSearch||ui.dirFilter!=='all'?'Ничего не найдено.':'Проектов пока нет.')+'</p>'
-          +(!ui.projectSearch&&ui.dirFilter==='all'?'<button class="btn primary" data-action="new-project">'+I.plus+' Создать первый</button>':'')+'</div>';
+        cards='<div class="empty-big"><p>'+(ui.projectSearch||ui.dirFilter!=='all'||ui.prioFilter!=='all'?'Ничего не найдено.':'Проектов пока нет.')+'</p>'
+          +(!ui.projectSearch&&ui.dirFilter==='all'&&ui.prioFilter==='all'?'<button class="btn primary" data-action="new-project">'+I.plus+' Создать первый</button>':'')+'</div>';
       }else{
         cards=act.map((p,i)=>projectCard(p,i)).join('');
         if(fin.length){
@@ -2092,6 +2119,8 @@ function init(){
     ui.sortByPrio=localStorage.getItem(LS_SORT)==='1';
     const df=localStorage.getItem(LS_DIRFILTER);
     if(df&&DIR_CYCLE.includes(df))ui.dirFilter=df;
+    const pf=localStorage.getItem(LS_PRIOFILTER);
+    if(pf&&PRIO_CYCLE.includes(pf))ui.prioFilter=pf;
   }catch(e){}
   load();
   migrateAll();
