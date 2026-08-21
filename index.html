@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Такие дела — выдачи и проекты · v4.6</title>
+<title>Такие дела — выдачи и проекты · v4.7</title>
 <meta name="description" content="Персональный трекер музейных выдач, договоров и музейных проектов: этапы, автодедлайны, контакты, исполнители и заметки.">
 <meta name="theme-color" content="#c14e24">
 <meta property="og:title" content="Такие дела — трекер музейных выдач">
@@ -35,7 +35,6 @@
   --r:12px;
   --display:'Spectral',Georgia,'Times New Roman',serif;
   --body:'Golos Text',-apple-system,'Segoe UI',sans-serif;
-  --hdr-h:58px;
 }
 [data-theme="dark"]{
   --bg:#1a1814; --surface:#24201a; --surface2:#2c2820;
@@ -561,7 +560,7 @@ button.task-assign:hover{color:var(--blue);border-color:var(--blue)}
 <body>
 <header id="hdr"></header>
 <main id="app"></main>
-<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 4.6 · данные хранятся локально в вашем браузере</footer>
+<footer class="foot">«Такие дела» · персональный трекер выдач, договоров и музейных проектов · версия 4.7 · данные хранятся локально в вашем браузере</footer>
 <div id="modalRoot"></div>
 <div id="toasts"></div>
 <input type="file" id="fileInput" accept="application/json,.json" hidden>
@@ -790,7 +789,7 @@ const LS_DIRFILTER='takiedela_dirfilter';
 const LS_PRIOFILTER='takiedela_priofilter';
 const LS_THEME='takiedela_theme';
 let state=null;
-const ui={view:'dash',projectId:null,tab:'stages',openAttach:null,addingStage:null,editStage:null,editTask:null,noteColor:'sun',noteDraft:'',editNote:null,bookTab:'orgs',sortByPrio:false,dirFilter:'all',prioFilter:'all',quickContact:false,contactSearch:'',projectSearch:''};
+const ui={view:'dash',projectId:null,tab:'stages',openAttach:null,addingStage:null,editStage:null,editTask:null,noteColor:'sun',noteDraft:'',editNote:null,bookTab:'execs',sortByPrio:false,dirFilter:'all',prioFilter:'all',quickContact:false,contactSearch:'',projectSearch:''};
 let contactModalOrgs=[];
 let npDir='vydacha';
 const cur=()=>state.projects.find(p=>p.id===ui.projectId)||null;
@@ -1133,7 +1132,7 @@ function vDashboard(){
   const filterNext=DIR_FILTER_LABEL[DIR_CYCLE[(DIR_CYCLE.indexOf(ui.dirFilter)+1)%DIR_CYCLE.length]];
   const prioFilterNext=PRIO_FILTER_LABEL[PRIO_CYCLE[(PRIO_CYCLE.indexOf(ui.prioFilter)+1)%PRIO_CYCLE.length]];
   return '<div class="wrap">'
-   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v4.6</p>'
+   +'<section class="hero rise"><p class="kicker">Личный трекер museum-проектов · v4.7</p>'
    +'<h1>Такие дела<span class="ast">✳</span></h1>'
    +'<p class="lede">Выдачи, договоры и музейные проекты: чек-листы и дедлайны, которые считаются сами — от ключевой даты проекта.</p></section>'
    +'<div class="search-box'+(ui.projectSearch?' has-value':'')+'">'
@@ -1549,11 +1548,11 @@ function vBook(){
     const sorted=sortExecs(ex);
     body=sorted.map(execBookCard).join('')||'<div class="empty-big"><p>Исполнителей пока нет.</p><p style="margin-top:6px;font-size:13px;color:var(--mut)">Это коллеги, которых вы назначаете на задачи в проектах.</p></div>';
   }
-  /* вкладки справочника: каждая с кнопкой "+" для быстрого добавления */
+  /* вкладки справочника: Исполнители, Организации, Контакты */
   const bookTabs=[
+    {key:'execs', label:'Исполнители', cnt:ex.length,addAction:'exec-new',   addTitle:'Добавить исполнителя'},
     {key:'orgs',  label:'Организации', cnt:o.length, addAction:'org-new',    addTitle:'Добавить организацию'},
-    {key:'contacts',label:'Контакты',  cnt:c.length, addAction:'contact-new',addTitle:'Добавить контакт'},
-    {key:'execs', label:'Исполнители', cnt:ex.length,addAction:'exec-new',   addTitle:'Добавить исполнителя'}
+    {key:'contacts',label:'Контакты',  cnt:c.length, addAction:'contact-new',addTitle:'Добавить контакт'}
   ];
   return '<div class="wrap">'
    +'<section class="book-head rise"><div><p class="kicker">Справочник</p><h1>Партнёры и команда</h1>'
@@ -1704,7 +1703,7 @@ function createProject(){
   ui.view='project';ui.projectId=p.id;ui.tab='stages';ui.openAttach=null;
   renderApp();window.scrollTo(0,0);toast('Проект создан — дедлайны рассчитаны');
 }
-const ORG_TYPES=['Музей','Галерея','Частная коллекция','Фонд','Театр','Страховая','Контрагент','Другое'];
+const ORG_TYPES=['Музей','Галерея','Частная коллекция','Фонд','Театр','Страховая','Контрагент','Издательство','СМИ','Институт','Другое'];
 function openOrgModal(org){
   openModal('<h3>'+(org?'Изменить организацию':'Новая организация')+'</h3>'
    +'<label>Название *<input id="m-name" maxlength="90" placeholder="Например: Музей цветов"></label>'
@@ -1896,7 +1895,7 @@ function deleteProject(){
 
 /* ================= экспорт / импорт / тосты ================= */
 function exportData(){
-  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'4.6',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'Такие дела',version:'4.7',exportedAt:new Date().toISOString(),data:state},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);a.download='takie-dela-'+todayISO()+'.json';a.click();
   URL.revokeObjectURL(a.href);toast('Резервная копия скачана');
